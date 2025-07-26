@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>API</name>
+    </assembly>
+    <members>
+        <member name="M:API.Controllers.AuthController.Login(API.Controllers.LoginModel)">
+            <summary>
+            Authenticates a user and returns a JWT token.
+            </summary>
+            <param name="model">Login credentials containing username and password.</param>
+            <returns>A JWT token string if credentials are valid.</returns>
+        </member>
+        <member name="M:API.Controllers.EmployeeController.Getname(System.String)">
+            <summary>
+            Gets a greeting or message based on the employee name.
+            </summary>
+            <param name="name">Employee name passed via URL.</param>
+            <returns>A string message.</returns>
+        </member>
+        <member name="M:API.Controllers.EmployeeController.GetDetails">
+            <summary>
+            Retrieves all employee records from the database.
+            </summary>
+            <returns>A list of EmployeeModel entries.</returns>
+        </member>
+        <member name="M:API.Controllers.EmployeeController.getdetails2(System.String,System.String,System.String)">
+            <summary>
+            Fetches filtered employee details using a flag and parameters.
+            </summary>
+            <param name="flag">Filter flag value.</param>
+            <param name="para1">Extra parameter 1.</param>
+            <param name="para2">Extra parameter 2.</param>
+            <returns>Filtered data based on input parameters.</returns>
+        </member>
+    </members>
+</doc>
