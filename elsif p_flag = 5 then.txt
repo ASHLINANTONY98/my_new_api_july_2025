@@ -1,0 +1,193 @@
+ elsif p_flag = 5 then
+    v_spliter_a := splitstr(p_indata, '#');
+    v_spliter_c := splitstr(v_spliter_a(1), '~');
+  
+    -- seq1 := SEQ_ASSET_LIABILITY.NEXTVAL;
+  
+    select count(*)
+      into v_ct
+      from TBL_HRM_MOVABLE_FORMS t
+     where t.seq_id = v_spliter_c(6);
+  
+    if (v_ct = 0) then
+      insert into MANA0809.TBL_HRM_MOVABLE_FORMS
+        (SEQ_ID,
+         CASH_AND_BANKBALANCE,
+         PERSONAL_LOAN,
+         REMARK,
+         DEPENDANT,
+         PERSONAL_RMRK,
+         enter_by,
+         enter_date)
+      values
+        (v_spliter_c(6),
+         v_spliter_c(1),
+         v_spliter_c(3),
+         v_spliter_c(2),
+         v_spliter_c(5),
+         v_spliter_c(4),
+         v_spliter_c(7),
+         sysdate);
+    
+      if (v_spliter_a(2) IS NOT NULL) then
+      v_spliter_b1 := splitstr(v_spliter_a(2), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          declare
+            v_issuer varchar2(200);
+            v_units  varchar2(50);
+          begin
+            if v_spliter_d.count >= 4 then v_issuer := nullif(trim(v_spliter_d(4)), '-'); end if;
+            if v_spliter_d.count >= 5 then v_units  := nullif(trim(v_spliter_d(5)), '-'); end if;
+
+            insert into TBL_HRM_ASSET_INVESTMENT
+              (SEQ_ID, INVESTMENT, AMOUNT, REMARK, DEPENDANT, ISSUER, UNITS_QTY)
+            values
+              (v_spliter_c(6), v_spliter_d(1), v_spliter_d(2), v_spliter_d(3), v_spliter_c(5),
+               v_issuer, v_units);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------------------------- vehicles
+    if (v_spliter_a(3) IS NOT NULL) then
+      v_spliter_b2 := splitstr(v_spliter_a(3), '!');
+      for k in 1 .. v_spliter_b2.count loop
+        if (v_spliter_b2(k) is not null) then
+          v_spliter_d1 := splitstr(v_spliter_b2(k), '*');
+          declare
+            v_mode   varchar2(30);
+            v_lender varchar2(200);
+            v_loan   number;
+            v_out    number;
+            v_emi    number;
+            v_co     varchar2(200);
+          begin
+            if v_spliter_d1.count >= 6  then v_mode   := nullif(trim(v_spliter_d1(6)),  '-'); end if;
+            if v_spliter_d1.count >= 7  then v_lender := nullif(trim(v_spliter_d1(7)),  '-'); end if;
+            if v_spliter_d1.count >= 8  then v_loan   := to_number(nullif(trim(v_spliter_d1(8)),  '-')); end if;
+            if v_spliter_d1.count >= 9  then v_out    := to_number(nullif(trim(v_spliter_d1(9)),  '-')); end if;
+            if v_spliter_d1.count >= 10 then v_emi    := to_number(nullif(trim(v_spliter_d1(10)), '-')); end if;
+            if v_spliter_d1.count >= 11 then v_co     := nullif(trim(v_spliter_d1(11)), '-'); end if;
+
+            insert into TBL_HRM_ASSET_VEHICLES
+              (SEQ_ID, SEQUENCE, VEHICLES, REGISTRATION_NUMBER, YEAR_OF_PURCHASE, AMOUNT_PAID, REMARK, DEPENDANT,
+               PAYMENT_MODE, LENDER_NAME, LOAN_AMOUNT, OUTSTANDING_AMOUNT, EMI_AMOUNT, CO_APPLICANT)
+            values
+              (v_spliter_c(6), SEQ_ASSET_LIABILITY_DETAILS.NEXTVAL, v_spliter_d1(1), v_spliter_d1(2),
+               v_spliter_d1(3), v_spliter_d1(4), v_spliter_d1(5), v_spliter_c(5),
+               v_mode, v_lender, v_loan, v_out, v_emi, v_co);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------------------------- jewellery
+    if (v_spliter_a(4) IS NOT NULL) then
+      v_spliter_b3 := splitstr(v_spliter_a(4), '!');
+      for k in 1 .. v_spliter_b3.count loop
+        if (v_spliter_b3(k) is not null) then
+          v_spliter_d2 := splitstr(v_spliter_b3(k), '*');
+          declare
+            v_value  number;
+            v_source varchar2(200);
+          begin
+            if v_spliter_d2.count >= 4 then v_value  := to_number(nullif(trim(v_spliter_d2(4)), '-')); end if;
+            if v_spliter_d2.count >= 5 then v_source := nullif(trim(v_spliter_d2(5)), '-'); end if;
+
+            insert into TBL_HRM_ASSET_JEWELLERY
+              (SEQ_ID, JEWELS, WEIGHT, REMARK, DEPENDANT, APPROX_VALUE, SOURCE_OF_FUNDS)
+            values
+              (v_spliter_c(6), v_spliter_d2(1), v_spliter_d2(2), v_spliter_d2(3), v_spliter_c(5),
+               v_value, v_source);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------------------------- other assets
+    if (v_spliter_a(5) IS NOT NULL) then
+      v_spliter_b4 := splitstr(v_spliter_a(5), '!');
+      for k in 1 .. v_spliter_b4.count loop
+        if (v_spliter_b4(k) is not null) then
+          v_spliter_d3 := splitstr(v_spliter_b4(k), '*');
+          declare
+            v_source varchar2(200);
+          begin
+            if v_spliter_d3.count >= 4 then v_source := nullif(trim(v_spliter_d3(4)), '-'); end if;
+
+            insert into TBL_HRM_OTHER_ASSETS
+              (SEQ_ID, OTHER_ASSETS, VALUE, REMARK, DEPENDANT, SOURCE_OF_FUNDS)
+            values
+              (v_spliter_c(6), v_spliter_d3(1), v_spliter_d3(2), v_spliter_d3(3), v_spliter_c(5),
+               v_source);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ------------------------------------------- NEW: bank / deposit accounts (Q2)
+    if v_spliter_a.count >= 6 and v_spliter_a(6) is not null then
+      v_spliter_b1 := splitstr(v_spliter_a(6), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_BANK_DEPOSIT
+            (SEQ_ID, DEPENDANT, BANK_NAME, BRANCH, ACCOUNT_TYPE, BALANCE)
+          values
+            (v_spliter_c(6), v_spliter_c(5), v_spliter_d(1), v_spliter_d(2), v_spliter_d(3),
+             to_number(v_spliter_d(4)));
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------- NEW: insurance / PPF (Q6)
+    if v_spliter_a.count >= 7 and v_spliter_a(7) is not null then
+      v_spliter_b1 := splitstr(v_spliter_a(7), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_INSURANCE_PPF
+            (SEQ_ID, DEPENDANT, INSTRUMENT_TYPE, PROVIDER, POLICY_NO, SUM_ASSURED)
+          values
+            (v_spliter_c(6), v_spliter_c(5), v_spliter_d(1), v_spliter_d(2), v_spliter_d(3),
+             to_number(v_spliter_d(4)));
+        end if;
+      end loop;
+    end if;
+
+    ------------------------------------- NEW: virtual digital assets (Q8)
+    if v_spliter_a.count >= 8 and v_spliter_a(8) is not null then
+      v_spliter_b1 := splitstr(v_spliter_a(8), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_VDA
+            (SEQ_ID, DEPENDANT, ASSET_TYPE, QUANTITY, APPROX_VALUE)
+          values
+            (v_spliter_c(6), v_spliter_c(5), v_spliter_d(1), v_spliter_d(2),
+             to_number(v_spliter_d(3)));
+        end if;
+      end loop;
+    end if;
+
+    commit;
+    
+      update TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         set z.status = 1
+       where z.sequence = v_spliter_c(6);
+    
+      commit;
+    
+      open p_as_outresult for
+      
+        select '111' from dual;
+    
+    else
+      open p_as_outresult for
+      
+        select '222' from dual;
+    
+    end if;
