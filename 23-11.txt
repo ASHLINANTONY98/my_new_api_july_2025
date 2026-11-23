@@ -1,0 +1,3947 @@
+@{
+    ViewData["Title"] = "";
+    Layout = "~/Views/Shared/Appsuite_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+@* <html>
+<head> *@
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+
+        .page-header {
+            background: #538392;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .required-label {
+            font-weight: 600;
+        }
+
+        .section-title {
+            background: #e8f0f2;
+            color: #091221;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-left: 4px solid #538392;
+            margin-bottom: 15px;
+        }
+
+        .section-box {
+            margin-bottom: 20px;
+        }
+
+        #tbl_viewba th {
+            background: #def;
+            font-size: 13px;
+        }
+
+        #tbl_viewba td {
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .navbar {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 99999;
+        }
+
+    </style>
+
+@* </head>
+
+<body>
+ *@
+    <div class="container">
+
+        <div class="card shadow">
+
+            <div class="page-header">
+                ASSETS AND LIABILITY
+            </div>
+
+            <div class="card-body">
+
+                @Html.AntiForgeryToken()
+
+                <!-- steps (same four pages as the old module; page 1 is active) -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page">ASSET AND LIABILITY</li>
+                        <li class="breadcrumb-item"><a href="#" data-page="AssetandLiability/Movable_forms">MOVABLE FORMS</a></li>
+                        <li class="breadcrumb-item"><a href="#" data-page="AssetandLiability/Immovable_forms">IMMOVABLE FORMS</a></li>
+                        <li class="breadcrumb-item"><a href="#" data-page="AssetandLiability/Dept_And_Liability">DEBTS AND OTHER</a></li>
+                    </ol>
+                </nav>
+
+                <!-- ===================== EMPLOYEE DETAILS ===================== -->
+                <div class="section-box">
+                    <div class="section-title">EMPLOYEE DETAILS <span class="text-danger">*</span></div>
+
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-md-2"><label class="required-label" for="txt_empcode">EMPCODE</label></div>
+                        <div class="col-md-4">
+                            <input type="text" id="txt_empcode" class="form-control" maxlength="30" autocomplete="off" readonly value="@ViewData["EmpCode"]" />
+                        </div>
+                        <div class="col-md-2"><label class="required-label" for="txt_empnme">EMPNAME</label></div>
+                        <div class="col-md-4">
+                            <input type="text" id="txt_empnme" class="form-control" maxlength="30" autocomplete="off" readonly value="@ViewData["EmpName"]" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-md-2"><label class="required-label" for="txt_desi">POSITION</label></div>
+                        <div class="col-md-4">
+                            <input type="text" id="txt_desi" class="form-control" maxlength="50" autocomplete="off" readonly />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="required-label">Whether form being filed by him/her <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="radio_spo" id="rdo_spo1" value="1" />
+                                <label class="form-check-label" for="rdo_spo1">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="radio_spo" id="rdo_spo2" value="0" />
+                                <label class="form-check-label" for="rdo_spo2">No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== SPOUSE DETAILS ===================== -->
+                <div class="section-box">
+                    <div class="section-title">SPOUSE DETAILS <span class="text-danger">*</span></div>
+
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-md-2">
+                            <label class="required-label">DO YOU HAVE SPOUSE <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="radio_spo1" id="rdo_spo3" onclick="toggleSpouseDetails()" />
+                                <label class="form-check-label" for="rdo_spo3">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="radio_spo1" id="rdo_spo4" onclick="toggleSpouseDetails()" />
+                                <label class="form-check-label" for="rdo_spo4">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="spo_div1" class="d-none">
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-md-2"><label class="required-label" for="txt_spousename">SPOUSE NAME</label></div>
+                            <div class="col-md-4">
+                                <input type="text" id="txt_spousename" class="form-control alpha-only" maxlength="30" autocomplete="off" />
+                            </div>
+                            <div class="col-md-2"><label class="required-label" for="txt_spouseposition">POSITION</label></div>
+                            <div class="col-md-4">
+                                <input type="text" id="txt_spouseposition" class="form-control alpha-only" maxlength="50" autocomplete="off" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-md-2">
+                                <label class="required-label">Whether form being filed by him/her <span class="text-danger">*</span></label>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="radio_spo2" id="rdo_spo5" value="1" />
+                                    <label class="form-check-label" for="rdo_spo5">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="radio_spo2" id="rdo_spo6" value="0" />
+                                    <label class="form-check-label" for="rdo_spo6">No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== DEPENDANT DETAILS ===================== -->
+                <div class="section-box">
+                    <div class="section-title">DEPENDANT DETAILS <span class="text-danger">*</span></div>
+
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-md-2"><label class="required-label" for="ddl_local2">DEPENDANT</label></div>
+                        <div class="col-md-4">
+                            <select id="ddl_local2" class="form-select" onchange="showDependentDetails()">
+                                <option value="0">----SELECT----</option>
+                                <option value="1">DEPENDANT 1</option>
+                                <option value="2">DEPENDANT 2</option>
+                                <option value="3">DEPENDANT 3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="dependentDetails" class="d-none">
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-md-2"><label class="required-label" for="txt_depname">DEPENDANT NAME</label></div>
+                            <div class="col-md-4">
+                                <input type="text" id="txt_depname" class="form-control alpha-only" maxlength="30" autocomplete="off" />
+                            </div>
+                            <div class="col-md-2"><label class="required-label" for="txt_deppositn">POSITION</label></div>
+                            <div class="col-md-4">
+                                <input type="text" id="txt_deppositn" class="form-control alpha-only" maxlength="50" autocomplete="off" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-md-2"><label class="required-label" for="txt_relation">RELATION OF DEPENDANT</label></div>
+                            <div class="col-md-4">
+                                <input type="text" id="txt_relation" class="form-control alpha-only" maxlength="50" autocomplete="off" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="required-label">Whether form being filed by him/her <span class="text-danger">*</span></label>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="radio_spo3" id="rdo_spo7" value="YES" />
+                                    <label class="form-check-label" for="rdo_spo7">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="radio_spo3" id="rdo_spo8" value="NO" />
+                                    <label class="form-check-label" for="rdo_spo8">No</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-3">
+                            <button type="button" id="btn_resing" class="btn btn-success px-4" onclick="add_rect()">
+                                <i class="bi bi-plus-circle"></i> ADD
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="tbl_ba" class="d-none">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover text-center" id="tbl_viewba">
+                                <thead>
+                                    <tr>
+                                        <th>DEPENDANT</th>
+                                        <th>DEPENDANT NAME</th>
+                                        <th>POSITION</th>
+                                        <th>RELATION OF DEPENDANT</th>
+                                        <th>WHETHER FORM BEING FILED BY HIM/HER</th>
+                                        <th>EDIT</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="text-center">
+
+                    <button type="button"
+                            id="btnConfirm"
+                            class="btn btn-success me-2"
+                            onclick="insert()">
+                        <i class="bi bi-check-circle"></i>
+                        CONFIRM
+                    </button>
+
+                    <button type="button"
+                            id="btnExit"
+                            onclick="goToDashboard()"
+                            class="btn btn-danger">
+                        <i class="bi bi-box-arrow-right"></i>
+                        EXIT
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // ---- API keys: must match what is registered in your HRMSModuleAPI ----
+        // empInfoKey -> proc flag 1 (empcode, name, designation)
+        // The save call goes through AssetandLiabilityController.SaveEmployeeFamily (flag 2).
+        var AL = {
+            module: "ASSET_AND_LIABILITY",
+            nextPage: "AssetandLiability/Movable_forms"
+        };
+
+        var MAX_DEPENDANTS = 3;
+
+        // ------------------------------------------------------------
+        //  URL helpers (same localhost / root-folder logic as before)
+        // ------------------------------------------------------------
+        function appUrl(path) {
+            var root = '@ViewData["root"]';
+
+            if (document.location.hostname == 'localhost' || !root) {
+                return "/" + path;
+            }
+            return "/" + root + "/" + path;
+        }
+
+        function GetLink() {
+            return appUrl("AssetandLiability/getAPIData");
+        }
+
+        function goToDashboard() {
+            window.location.href = appUrl("Home/Dashboard");
+        }
+
+        // ------------------------------------------------------------
+        //  Small helpers
+        // ------------------------------------------------------------
+        function warn(msg) {
+            Swal.fire({ icon: "warning", text: msg });
+        }
+
+        function firstRow(response) {
+            try {
+                var data = (typeof response === "string") ? JSON.parse(response) : response;
+                if (Array.isArray(data)) return data[0] || null;
+                if (data && Array.isArray(data.RESP)) return data.RESP[0] || null;
+                return data || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function pick(row, name) {
+            if (!row || typeof row !== "object") return "";
+            for (var k in row) {
+                if (k.toUpperCase() === name) return row[k] == null ? "" : String(row[k]);
+            }
+            return "";
+        }
+
+        function setIf(selector, value) {
+            if (value) $(selector).val(value);
+        }
+
+        // "111" = inserted, "222" = already exists (same codes the old createnew() returned)
+        function resultCode(response) {
+            var data = response;
+            try { data = (typeof response === "string") ? JSON.parse(response) : response; } catch (e) { data = response; }
+            if (Array.isArray(data)) data = data[0];
+            if (data && typeof data === "object") data = Object.values(data)[0];
+            var m = String(data == null ? "" : data).split("*")[0].match(/\b(111|222)\b/);
+            return m ? m[1] : "";
+        }
+
+        // ------------------------------------------------------------
+        //  Page load : employee details (old emp_load)
+        // ------------------------------------------------------------
+        function loadEmployee() {
+            var empCode = $("#txt_empcode").val();
+
+            if (!empCode) {
+                Swal.fire({ icon: "error", title: "Session expired", text: "Please log in again." });
+                return;
+            }
+
+            var indata = AL.module + "§" + "1" + "‡" + empCode;
+
+            $.ajax({
+                type: "GET",
+                url: GetLink(),
+                data: { datas: indata },
+                success: function (response) {
+                    var row = firstRow(response);
+                    if (!row) return;
+                    setIf("#txt_empcode", pick(row, "EMP_CODE"));
+                    setIf("#txt_empnme", pick(row, "EMP_NAME"));
+                    setIf("#txt_desi", pick(row, "DESIGNATION"));
+                },
+                error: function () {
+                    warn("Could not load employee details.");
+                }
+            });
+        }
+
+        // letters and space only, upper case (also blocks pasted text)
+        $(document).on("input", ".alpha-only", function () {
+            this.value = this.value.replace(/[^A-Za-z ]/g, "").toUpperCase();
+        });
+
+        // ------------------------------------------------------------
+        //  Spouse
+        // ------------------------------------------------------------
+        function toggleSpouseDetails() {
+            var hasSpouse = $("#rdo_spo3").is(":checked");
+            $("#spo_div1").toggleClass("d-none", !hasSpouse);
+
+            if (!hasSpouse) clearTextField();
+        }
+
+        function clearTextField() {
+            $("#txt_spousename, #txt_spouseposition").val("");
+            $('input[name="radio_spo2"]').prop("checked", false);
+        }
+
+        // ------------------------------------------------------------
+        //  Dependants
+        // ------------------------------------------------------------
+        function showDependentDetails() {
+            var selected = $("#ddl_local2").val();
+
+            // clear the fields every time a selection is made
+            $("#txt_depname, #txt_deppositn, #txt_relation").val("");
+            $("#dependentDetails").toggleClass("d-none", selected === "0");
+        }
+
+        function clearInputs() {
+            $("#txt_depname, #txt_deppositn, #txt_relation").val("");
+            $("#ddl_local2").val("0");
+            $('input[name="radio_spo3"]').prop("checked", false);
+            $("#dependentDetails").addClass("d-none");
+        }
+
+        function refreshDependentTable() {
+            $("#tbl_ba").toggleClass("d-none", $("#tbl_viewba tbody tr").length === 0);
+        }
+
+        function add_rect() {
+            var dependant = $("#ddl_local2").val();
+            var label = $("#ddl_local2 option:selected").text();
+            var name = $.trim($("#txt_depname").val());
+            var position = $.trim($("#txt_deppositn").val());
+            var relation = $.trim($("#txt_relation").val());
+            var filed = $('input[name="radio_spo3"]:checked').val();   // YES / NO
+
+            if (dependant === "0" || !name || !position || !relation || !filed) {
+                warn("Please enter all the fields..!");
+                return false;
+            }
+
+            var already = $("#tbl_viewba tbody tr").filter(function () {
+                return $(this).children("td").eq(0).text() === label;
+            }).length;
+
+            if (already > 0) {
+                warn("Already added this dependant !!!");
+                clearInputs();
+                return false;
+            }
+
+            if ($("#tbl_viewba tbody tr").length >= MAX_DEPENDANTS) {
+                warn("Add only three dependant details.");
+                clearInputs();
+                return false;
+            }
+
+            var $del = $("<i>", { "class": "bi bi-trash text-danger", role: "button", title: "Remove" })
+            .on("click", function () { dlt_s1(this); });
+
+            var $tr = $("<tr>");
+            $tr.append(
+                $("<td>").text(label),
+                $("<td>").text(name),
+                $("<td>").text(position),
+                $("<td>").text(relation),
+                $("<td>").text(filed),
+                $("<td>").append($del)
+            );
+
+            $("#tbl_viewba tbody").append($tr);
+            refreshDependentTable();
+            clearInputs();
+        }
+
+        function dlt_s1(el) {
+            $(el).closest("tr").remove();
+            refreshDependentTable();
+        }
+
+        // ------------------------------------------------------------
+        //  CONFIRM (old insert)
+        // ------------------------------------------------------------
+        function insert() {
+            var emp_code = $("#txt_empcode").val();
+            var emp_name = $("#txt_empnme").val();
+            var posi = $("#txt_desi").val();
+
+            // ---- spouse ----
+            var spouseName, spousePos, spouseFiled;
+
+            if ($("#rdo_spo3").is(":checked")) {
+                spouseName = $.trim($("#txt_spousename").val());
+                spousePos = $.trim($("#txt_spouseposition").val());
+
+                if (spouseName === "") { warn("Please Add Spouse Name...!!"); return false; }
+                if (spousePos === "") { warn("Please Add Spouse position...!!"); return false; }
+
+                spouseFiled = $('input[name="radio_spo2"]:checked').val();
+                if (spouseFiled === undefined) { warn("Please select whether filled by him/her...!!"); return false; }
+            }
+            else if ($("#rdo_spo4").is(":checked")) {
+                spouseName = "nill";
+                spousePos = "nill";
+                spouseFiled = 0;
+            }
+            else {
+                warn("Please select spouse ...!!");
+                return false;
+            }
+
+            // ---- employee: filed by him/her ----
+            var empFiled = $('input[name="radio_spo"]:checked').val();
+            if (empFiled === undefined) { warn("Please select whether filled by him/her...!!"); return false; }
+
+            // ---- dependants ----
+            var dependents = "";
+            $("#tbl_viewba tbody tr").each(function () {
+                var c = $(this).children("td");
+                var whrk = $.trim(c.eq(4).text()) === "YES" ? 1 : 0;
+
+                dependents += [c.eq(0).text(), c.eq(1).text(), c.eq(2).text(), c.eq(3).text(), whrk].join("*") + "!";
+            });
+
+            if (dependents === "") { warn("Please Add dependent details ...!!"); return false; }
+
+            // same layout as the old page: head # dependants
+            var head = [emp_code, emp_name, posi, empFiled, spouseName, spousePos, spouseFiled].join("~");
+            var payload = head + "#" + dependents;
+
+            $("#btnConfirm").prop("disabled", true);
+
+            $.ajax({
+                type: "POST",
+                url: appUrl("AssetandLiability/SaveEmployeeFamily"),
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                data: { datas: payload },
+                success: function (response) {
+                    var code = resultCode(response);
+
+                    if (code === "111") {
+                        Swal.fire({ icon: "success", title: "Insert Successfully" }).then(function () {
+                            window.location.href = appUrl(AL.nextPage);
+                        });
+                    }
+                    else if (code === "222") {
+                        Swal.fire({ icon: "info", title: "Already Exits!!!!" }).then(function () {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                    $("#btnConfirm").prop("disabled", false);
+                    Swal.fire({ icon: "error", title: "Not saved", text: "Please try again." });
+                    }
+                },
+                error: function () {
+                    $("#btnConfirm").prop("disabled", false);
+                    Swal.fire({ icon: "error", title: "Failed", text: "Could not save. Please try again." });
+                }
+            });
+        }
+
+        // ------------------------------------------------------------
+        //  Start
+        // ------------------------------------------------------------
+        $(function () {
+            $("nav[aria-label=breadcrumb] a[data-page]").each(function () {
+                $(this).attr("href", appUrl($(this).data("page")));
+            });
+
+            loadEmployee();
+        });
+
+    </script>
+
+@* </body>
+</html> *@
+ i done 1st page succesfully and 2nd page some chnages also 1st i chnged ok 2nd page is @{
+    ViewData["Title"] = "";
+    Layout = "~/Views/Shared/Appsuite_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+
+        .page-header {
+            background: #538392;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .required-label {
+            font-weight: 600;
+        }
+
+        .section-title {
+            background: #e8f0f2;
+            color: #091221;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-left: 4px solid #538392;
+            margin-bottom: 15px;
+        }
+
+        .section-box {
+            margin-bottom: 20px;
+        }
+
+        .data-table th {
+            background: #def;
+            font-size: 13px;
+        }
+
+        .data-table td {
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        /* small yellow tag on every field / block that is new in the Annexure-I format.
+           To hide all of them later:  .new-tag { display: none; } */
+        .new-tag {
+            font-size: 10px;
+            vertical-align: middle;
+        }
+
+        .navbar {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 99999;
+        }
+
+    </style>
+
+
+    <div class="container mt-4">
+
+        <div class="card shadow">
+
+            <div class="page-header">
+                STATEMENT OF MOVABLE PROPERTY
+            </div>
+
+            <div class="card-body">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="txt_session" value="@ViewData["EmpCode"]" />
+
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#" data-page="AssetandLiability/master_page">ASSET AND LIABILITY</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">MOVABLE FORMS</li>
+                        <li class="breadcrumb-item"><a href="#" data-page="AssetandLiability/Immovable_forms">IMMOVABLE FORMS</a></li>
+                        <li class="breadcrumb-item"><a href="#" data-page="AssetandLiability/Dept_And_Liability">DEBTS AND OTHER</a></li>
+                    </ol>
+                </nav>
+
+                <!-- ===================== PERSON DETAILS ===================== -->
+                <div class="section-box">
+                    <div class="section-title">PERSON DETAILS <span class="text-danger">*</span></div>
+
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-md-2"><label class="required-label" for="ddl_emp">PERSON NAME</label></div>
+                        <div class="col-md-4">
+                            <select id="ddl_emp" class="form-select" onchange="onPersonChange()"></select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-md-2"><label class="required-label" for="ddl_dep_name">NAME</label></div>
+                        <div class="col-md-4">
+                            <input type="text" id="ddl_dep_name" class="form-control" maxlength="30" disabled />
+                        </div>
+                        <div class="col-md-2"><label class="required-label" for="ddl_dep_pos">POSITION</label></div>
+                        <div class="col-md-4">
+                            <input type="text" id="ddl_dep_pos" class="form-control" maxlength="50" disabled />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== CASH AND BANK BALANCE (old) ===================== -->
+                <div class="section-box">
+                    <div class="section-title">BANK BALANCE <span class="text-danger">*</span></div>
+
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-md-2"><label class="required-label" for="txt_cash">CASH AND BANKBALANCE</label></div>
+                        <div class="col-md-4">
+                            <input type="text" id="txt_cash" class="form-control f-amount" maxlength="30" autocomplete="off" />
+                        </div>
+                        <div class="col-md-2"><label class="required-label" for="txt_remark">REMARK</label></div>
+                        <div class="col-md-4">
+                            <input type="text" id="txt_remark" class="form-control f-text" maxlength="30" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- bank accounts (new), investments, insurance / PPF (new) are drawn here -->
+                <div id="blocks_a"></div>
+
+                <!-- ===================== PERSONAL LOAN (old) ===================== -->
+                <div class="section-box">
+                    <div class="section-title">PERSONAL LOAN <span class="text-danger">*</span></div>
+
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-md-8">
+                            <label class="required-label">
+                                Personal loans/advances given to any person or entity including firm, company, trust, etc.
+                                and other receivables from debtors and the amount (Exceeding two months basic pay or Rupees one lakh)
+                                <span class="text-danger">*</span>
+                            </label>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="radio_spo" id="rdo_spo1" />
+                                <label class="form-check-label" for="rdo_spo1">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="radio_spo" id="rdo_spo2" />
+                                <label class="form-check-label" for="rdo_spo2">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-md-2"><label class="required-label" for="txt_rmrk">REMARK</label></div>
+                        <div class="col-md-4">
+                            <input type="text" id="txt_rmrk" class="form-control f-text" maxlength="30" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- vehicles, jewellery, other assets, virtual digital assets (new) are drawn here -->
+                <div id="blocks_b"></div>
+
+                <hr />
+
+                <div class="text-center">
+                    <button type="button" id="btnConfirm" class="btn btn-success me-2" onclick="insert()">
+                        <i class="bi bi-check-circle"></i>
+                        CONFIRM
+                    </button>
+
+                    <button type="button" id="btnExit" onclick="goToDashboard()" class="btn btn-danger">
+                        <i class="bi bi-box-arrow-right"></i>
+                        EXIT
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // ---- API keys: must match what is registered in your HRMSModuleAPI ----
+        // personsKey -> proc flag 3, personInfoKey -> flag 4, pendingKey -> flag 11
+        // Saving goes through AssetandLiabilityController.SaveMovable (flag 5).
+        var AL = {
+            module: "ASSET_AND_LIABILITY",
+            nextPage: "AssetandLiability/Immovable_forms"
+        };
+
+        var remaining = null;   // persons still pending (old hdvalue); 1 = this is the last person
+
+        // ------------------------------------------------------------
+        //  Block definitions
+        //  seg   = position of the block in the saved string (after the header)
+        //  isNew = field / block added for the Annexure-I format
+        //  req:false = optional field, show:function(v) = field only shown when true
+        //  The fields are saved in the order listed here. Old fields come first,
+        //  new fields are appended, so the old proc keeps working until it is patched.
+        // ------------------------------------------------------------
+        var yearList = (function () {
+            var list = [], y = new Date().getFullYear();
+            for (var i = y; i >= y - 100; i--) list.push(String(i));
+            return list;
+        })();
+
+        var BLOCKS = [
+            {
+                key: "bank", seg: 6, isNew: true, area: "a",
+                title: "BANK / DEPOSIT ACCOUNTS",
+                question: "DO YOU HAVE BANK / DEPOSIT ACCOUNTS (SAVINGS, FIXED OR RECURRING DEPOSITS)",
+                msg: "Please Add bank account details ...!!",
+                fields: [
+                    { id: "bank", label: "BANK / INSTITUTION", col: "BANK / INSTITUTION", type: "text", max: 50 },
+                    { id: "branch", label: "BRANCH", col: "BRANCH", type: "text", max: 50 },
+                    { id: "acct", label: "ACCOUNT TYPE", col: "ACCOUNT TYPE", type: "select", opts: ["Savings", "Current", "Fixed Deposit", "Recurring Deposit", "Other"] },
+                    { id: "bal", label: "APPROX. BALANCE (\u20B9)", col: "BALANCE", type: "amount", max: 15 }
+                ]
+            },
+            {
+                key: "invest", seg: 2, area: "a",
+                title: "OTHER INVESTMENTS",
+                question: "DO YOU HAVE INVESTMENTS",
+                msg: "Please Add investemnt details ...!!",
+                fields: [
+                    { id: "type", label: "INVESTMENTS", col: "INVESTMENTS", type: "select", opts: ["Insurance", "Fixed or Recurring Deposit", "Shares or Bonds", "Mutual Fund", "Pension Scheme or Provident Fund", "Other investments, if any"] },
+                    { id: "amount", label: "AMOUNT", col: "AMOUNT", type: "amount", max: 15 },
+                    { id: "remark", label: "REMARK", col: "REMARK", type: "text", max: 30 },
+                    { id: "issuer", label: "ISSUER / FUND", col: "ISSUER / FUND", type: "text", max: 60, req: false, isNew: true },
+                    { id: "units", label: "UNITS / QTY", col: "UNITS / QTY", type: "alnum", max: 20, req: false, isNew: true }
+                ]
+            },
+            {
+                key: "ins", seg: 7, isNew: true, area: "a",
+                title: "INSURANCE / PPF / RETIREMENT SAVINGS",
+                question: "DO YOU HAVE LIFE INSURANCE, PPF OR OTHER RETIREMENT SAVINGS (EXCLUDING COMPANY PF AND GRATUITY)",
+                msg: "Please Add insurance / PPF details ...!!",
+                fields: [
+                    { id: "type", label: "TYPE", col: "TYPE", type: "select", opts: ["Life Insurance", "Health Insurance", "PPF", "NPS", "Other"] },
+                    { id: "provider", label: "PROVIDER", col: "PROVIDER", type: "text", max: 60 },
+                    { id: "policy", label: "POLICY / ACCOUNT NO.", col: "POLICY / ACCOUNT NO.", type: "alnum", max: 30 },
+                    { id: "sum", label: "SUM ASSURED / VALUE (\u20B9)", col: "SUM ASSURED / VALUE", type: "amount", max: 15 }
+                ]
+            },
+            {
+                key: "veh", seg: 3, area: "b",
+                title: "MOTOR VEHICLES",
+                question: "DO YOU HAVE VEHICLES",
+                msg: "Please Add Vehicle details ...!!",
+                fields: [
+                    { id: "type", label: "VEHICLES", col: "VEHICLES", type: "select", opts: ["TWO WHEELER", "THREE WHEELER", "FOUR WHEELER"] },
+                    { id: "regno", label: "REGISTRATION NUMBER", col: "REGISTRATION NUMBER", type: "alnum", max: 30 },
+                    { id: "year", label: "YEAR OF PURCHASE", col: "YEAR OF PURCHASE", type: "year" },
+                    { id: "amount", label: "ON-ROAD PRICE / AMOUNT PAID (\u20B9)", col: "AMOUNT PAID", type: "amount", max: 15 },
+                    { id: "remark", label: "REMARK", col: "REMARK", type: "text", max: 30 },
+                    { id: "mode", label: "MODE OF PAYMENT", col: "MODE OF PAYMENT", type: "select", opts: ["CASH", "LOAN", "PART-FINANCE"], isNew: true },
+                    { id: "lender", label: "LENDER NAME", col: "LENDER", type: "text", max: 60, isNew: true, show: financed },
+                    { id: "loan", label: "LOAN AMOUNT (\u20B9)", col: "LOAN AMOUNT", type: "amount", max: 15, isNew: true, show: financed },
+                    { id: "outstanding", label: "OUTSTANDING AMOUNT (\u20B9)", col: "OUTSTANDING", type: "amount", max: 15, isNew: true, show: financed },
+                    { id: "emi", label: "EMI (\u20B9)", col: "EMI", type: "amount", max: 15, isNew: true, show: financed },
+                    { id: "co", label: "CO-APPLICANT (IF ANY)", col: "CO-APPLICANT", type: "text", max: 60, req: false, isNew: true, show: financed }
+                ]
+            },
+            {
+                key: "jwl", seg: 4, area: "b",
+                title: "JEWELLERY",
+                question: "DO YOU HAVE JEWELLERY",
+                msg: "Please Add Jewel details ...!!",
+                fields: [
+                    { id: "type", label: "JEWELS", col: "JEWELS", type: "select", opts: ["GOLD", "SILVER ITEMS", "PRECIOUS METALS", "PRECIOUS STONES", "COMPOSITE ITEMS"] },
+                    { id: "weight", label: "WEIGHT", col: "WEIGHT", type: "alnum", max: 20 },
+                    { id: "remark", label: "REMARK", col: "REMARK", type: "text", max: 30 },
+                    { id: "value", label: "APPROX. VALUE (\u20B9)", col: "APPROX. VALUE", type: "amount", max: 15, isNew: true },
+                    { id: "source", label: "SOURCE OF FUNDS", col: "SOURCE OF FUNDS", type: "text", max: 60, isNew: true }
+                ]
+            },
+            {
+                key: "oth", seg: 5, area: "b",
+                title: "OTHER ASSETS",
+                question: "DO YOU HAVE OTHER ASSETS",
+                msg: "Please Add Other Assets details ...!!",
+                fields: [
+                    { id: "type", label: "OTHERS", col: "OTHERS", type: "select", opts: ["FURNITURE", "FIXTURE", "ANTIQUES", "PAINTINGS", "ELECTRONIC EQUIPMENT", "BUSINESS PARTNERSHIP LLP INTEREST", "OTHER FINANCIAL ASSET", "OTHERS"] },
+                    { id: "value", label: "CURRENT VALUE (\u20B9)", col: "CURRENT VALUE", type: "amount", max: 15 },
+                    { id: "remark", label: "REMARK", col: "REMARK", type: "text", max: 30 },
+                    { id: "source", label: "SOURCE OF FUNDS", col: "SOURCE OF FUNDS", type: "text", max: 60, isNew: true }
+                ]
+            },
+            {
+                key: "vda", seg: 8, isNew: true, area: "b",
+                title: "VIRTUAL DIGITAL ASSETS",
+                question: "DO YOU HAVE VIRTUAL DIGITAL ASSETS (CRYPTOCURRENCY, DIGITAL TOKENS OR SIMILAR)",
+                msg: "Please Add virtual digital asset details ...!!",
+                fields: [
+                    { id: "type", label: "ASSET TYPE", col: "ASSET TYPE", type: "text", max: 60 },
+                    { id: "qty", label: "QUANTITY", col: "QUANTITY", type: "alnum", max: 20 },
+                    { id: "value", label: "APPROX. VALUE (\u20B9)", col: "APPROX. VALUE", type: "amount", max: 15 }
+                ]
+            }
+        ];
+
+        // financing details are only asked when the vehicle was not bought with cash
+        function financed(v) {
+            return v.mode !== "" && v.mode !== "CASH";
+        }
+
+        var BMAP = {};
+        BLOCKS.forEach(function (b) { BMAP[b.key] = b; });
+
+        // ------------------------------------------------------------
+        //  URL helpers
+        // ------------------------------------------------------------
+        function appUrl(path) {
+            var root = '@ViewData["root"]';
+
+            if (document.location.hostname == 'localhost' || !root) {
+                return "/" + path;
+            }
+            return "/" + root + "/" + path;
+        }
+
+        function GetLink() {
+            return appUrl("AssetandLiability/getAPIData");
+        }
+
+        function goToDashboard() {
+            window.location.href = appUrl("Home/Dashboard");
+        }
+
+        // ------------------------------------------------------------
+        //  Small helpers
+        // ------------------------------------------------------------
+        function warn(msg) {
+            Swal.fire({ icon: "warning", text: msg });
+        }
+
+        // getAPIData removes {"RESP": and can leave a closing } behind
+        function parseJson(response) {
+            if (typeof response !== "string") return response;
+            try { return JSON.parse(response); } catch (e) { }
+            try { return JSON.parse(response.replace(/\}\s*$/, "")); } catch (e) { }
+            return null;
+        }
+
+        function rowsOf(response) {
+            var data = parseJson(response);
+            if (Array.isArray(data)) return data;
+            if (data && Array.isArray(data.RESP)) return data.RESP;
+            return data ? [data] : [];
+        }
+
+        function pick(row, name) {
+            if (!row || typeof row !== "object") return "";
+            for (var k in row) {
+                if (k.toUpperCase() === name) return row[k] == null ? "" : String(row[k]);
+            }
+            return "";
+        }
+
+        // "111" = inserted, "222" = already exists
+        function resultCode(response) {
+            var data = parseJson(response);
+            if (data === null) data = response;
+            if (Array.isArray(data)) data = data[0];
+            if (data && typeof data === "object") data = Object.values(data)[0];
+            var m = String(data == null ? "" : data).split("*")[0].match(/\b(111|222)\b/);
+            return m ? m[1] : "";
+        }
+
+        function apiGet(indata, done) {
+            $.ajax({
+                type: "GET",
+                url: GetLink(),
+                data: { datas: AL.module + "§" + indata },
+                success: done,
+                error: function () { warn("Could not load data. Please try again."); }
+            });
+        }
+
+        function empCode() {
+            return $("#txt_session").val();
+        }
+
+        // ------------------------------------------------------------
+        //  Input filtering (letters/numbers only, so the saved string can never be broken)
+        // ------------------------------------------------------------
+        $(document).on("input", ".f-text", function () {
+            this.value = this.value.replace(/[^A-Za-z0-9 .,&()]/g, "").toUpperCase();
+        });
+
+        $(document).on("input", ".f-alnum", function () {
+            this.value = this.value.replace(/[^A-Za-z0-9 ]/g, "").toUpperCase();
+        });
+        $(document).on("input", ".f-amount", function () {
+            this.value = this.value.replace(/[^0-9]/g, "");
+        });
+
+        // ------------------------------------------------------------
+        //  Person list (flag 3) / person details (flag 4) / pending count (flag 11)
+        // ------------------------------------------------------------
+        function loadPersons() {
+            apiGet("3" + "‡" + empCode(), function (resp) {
+                var $ddl = $("#ddl_emp").empty();
+                $ddl.append($("<option>").val("-1").text("----------select----------"));
+
+                rowsOf(resp).forEach(function (r) {
+                    var value = pick(r, "DEPENDANT");
+                    if (value === "" || value === "-1") return;
+                    $ddl.append($("<option>").val(value).text(pick(r, "DEPENDANT_NAME")));
+                });
+            });
+        }
+
+        // option text looks like "DEPENDANT 1 - NAME-12"; the sequence is what follows the last dash
+        function currentSeq() {
+            var text = $("#ddl_emp option:selected").text();
+            var i = text.lastIndexOf("-");
+            return i >= 0 ? $.trim(text.substring(i + 1)) : "";
+        }
+
+        function onPersonChange() {
+            $("#ddl_dep_name, #ddl_dep_pos").val("");
+
+            var seq = currentSeq();
+            if ($("#ddl_emp").val() === "-1" || !seq) return;
+
+            apiGet("4" + "‡" + seq + "~" + empCode(), function (resp) {
+                var row = rowsOf(resp)[0];
+                $("#ddl_dep_name").val(pick(row, "SPOUSE_AND_DEPEN_NAME"));
+                $("#ddl_dep_pos").val(pick(row, "POSITION"));
+            });
+        }
+
+        function loadPending() {
+            apiGet("11" + "‡" + empCode(), function (resp) {
+                var row = rowsOf(resp)[0];
+                var first = row ? Object.values(row)[0] : null;
+                var n = parseInt(first, 10);
+                remaining = isNaN(n) ? null : n;
+
+                if (remaining === 0) {
+                    Swal.fire({ icon: "info", text: "Movable details are already completed for everyone." });
+                }
+            });
+        }
+
+        // ------------------------------------------------------------
+        //  Block engine
+        // ------------------------------------------------------------
+        function fid(b, f) { return b.key + "_" + f.id; }
+
+        function fieldHtml(b, f) {
+            var id = fid(b, f);
+            var optional = f.req === false;
+
+            var label = '<label class="required-label" for="' + id + '">' + f.label +
+                (optional ? ' <small class="text-muted fw-normal">(optional)</small>' : ' <span class="text-danger">*</span>') +
+                (f.isNew ? ' <span class="badge bg-warning text-dark new-tag">NEW</span>' : '') +
+                '</label>';
+
+            var input;
+            if (f.type === "select" || f.type === "year") {
+                var opts = f.type === "year" ? yearList : f.opts;
+                input = '<select class="form-select" id="' + id + '"><option value="0">----SELECT----</option>' +
+                    opts.map(function (o) { return "<option>" + o + "</option>"; }).join("") + "</select>";
+            } else {
+                var cls = f.type === "amount" ? "f-amount" : f.type === "alnum" ? "f-alnum" : "f-text";
+                input = '<input type="text" class="form-control ' + cls + '" id="' + id + '" maxlength="' + (f.max || 30) + '" autocomplete="off" />';
+            }
+
+            return '<div class="col-md-6 fld" data-f="' + f.id + '"><div class="row align-items-center">' +
+                '<div class="col-5">' + label + '</div><div class="col-7">' + input + "</div></div></div>";
+        }
+
+        function blockHtml(b) {
+            var k = b.key;
+
+            var h = '<div class="section-box" id="sec_' + k + '">';
+            h += '<div class="section-title">' + b.title +
+                (b.isNew ? ' <span class="badge bg-warning text-dark new-tag">NEW</span>' : "") +
+                ' <span class="text-danger">*</span></div>';
+
+            h += '<div class="row mb-3 align-items-center"><div class="col-md-8"><label class="required-label">' + b.question +
+                ' <span class="text-danger">*</span></label></div><div class="col-md-4">' +
+                '<div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="yn_' + k + '" id="yn_' + k + '_1" value="1" />' +
+                '<label class="form-check-label" for="yn_' + k + '_1">Yes</label></div>' +
+                '<div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="yn_' + k + '" id="yn_' + k + '_0" value="0" />' +
+                '<label class="form-check-label" for="yn_' + k + '_0">No</label></div></div></div>';
+
+            h += '<div id="box_' + k + '" class="d-none"><div class="row g-3 mb-3">' +
+                b.fields.map(function (f) { return fieldHtml(b, f); }).join("") +
+                '</div><div class="text-center mb-3"><button type="button" class="btn btn-success px-4" data-add="' + k + '">' +
+                '<i class="bi bi-plus-circle"></i> ADD</button></div>';
+
+            h += '<div class="table-responsive"><table class="table table-striped table-bordered table-hover text-center data-table d-none" id="tbl_' + k + '"><thead><tr>' +
+                b.fields.map(function (f) { return "<th>" + f.col + "</th>"; }).join("") +
+                "<th>REMOVE</th></tr></thead><tbody></tbody></table></div></div></div>";
+
+            return h;
+        }
+
+        function readField(b, f) {
+            var v = $.trim($("#" + fid(b, f)).val());
+            return (v === "0" && (f.type === "select" || f.type === "year")) ? "" : v;
+        }
+
+        function readValues(b) {
+            var vals = {};
+            b.fields.forEach(function (f) { vals[f.id] = readField(b, f); });
+            return vals;
+        }
+
+        function isShown(b, f) {
+            return !f.show || f.show(readValues(b));
+        }
+
+        function refreshVisibility(b) {
+            b.fields.forEach(function (f) {
+                if (!f.show) return;
+                var shown = f.show(readValues(b));
+                var $wrap = $("#box_" + b.key + ' .fld[data-f="' + f.id + '"]');
+                $wrap.toggleClass("d-none", !shown);
+                if (!shown) $("#" + fid(b, f)).val(f.type === "select" || f.type === "year" ? "0" : "");
+            });
+        }
+
+        function resetFields(b) {
+            b.fields.forEach(function (f) {
+                $("#" + fid(b, f)).val(f.type === "select" || f.type === "year" ? "0" : "");
+            });
+            refreshVisibility(b);
+        }
+
+        function clearBlock(b) {
+            $("#tbl_" + b.key + " tbody").empty();
+            $("#tbl_" + b.key).addClass("d-none");
+            resetFields(b);
+        }
+
+        function addRow(key) {
+            var b = BMAP[key];
+            var vals = readValues(b);
+
+            for (var i = 0; i < b.fields.length; i++) {
+                var f = b.fields[i];
+                if (isShown(b, f) && f.req !== false && vals[f.id] === "") {
+                    warn("Please enter all the fields..!");
+                    return false;
+                }
+            }
+
+            var cells = b.fields.map(function (f) {
+                return (isShown(b, f) && vals[f.id] !== "") ? vals[f.id] : "-";
+            });
+
+            // an identical row is a duplicate (the same type can be added again with different details)
+            var signature = cells.join("|");
+            var duplicate = $("#tbl_" + key + " tbody tr").filter(function () {
+                return $(this).data("sig") === signature;
+            }).length;
+
+            if (duplicate > 0) {
+                warn("Already added this entry !!!");
+                return false;
+            }
+
+            var $tr = $("<tr>").data("sig", signature);
+            cells.forEach(function (c) { $tr.append($("<td>").text(c)); });
+            $tr.append($("<td>").append(
+                $("<i>", { "class": "bi bi-trash text-danger btn-del", role: "button", title: "Remove" })
+            ));
+
+            $("#tbl_" + key + " tbody").append($tr);
+            $("#tbl_" + key).removeClass("d-none");
+            resetFields(b);
+        }
+
+        // rows of one block as  a*b*c!d*e*f!
+        function blockRows(b) {
+            var s = "";
+            $("#tbl_" + b.key + " tbody tr").each(function () {
+                var c = [];
+                $(this).children("td").each(function (i) {
+                    if (i < b.fields.length) c.push($.trim($(this).text()) || "-");
+                });
+                s += c.join("*") + "!";
+            });
+            return s;
+        }
+
+        function blockAnswer(b) {
+            return $('input[name="yn_' + b.key + '"]:checked').val();   // "1", "0" or undefined
+        }
+
+        // ------------------------------------------------------------
+        //  CONFIRM (old insert)
+        // ------------------------------------------------------------
+        function insert() {
+
+            var dependant = $("#ddl_emp").val();
+            var seq = currentSeq();
+
+            if (dependant === "-1" || dependant === null || !seq) { warn("please select dependant..!"); return false; }
+
+            var cash = $.trim($("#txt_cash").val());
+            if (cash === "") { warn("please Add Cash And BankBalance..!"); return false; }
+
+            var balRmk = $.trim($("#txt_remark").val());
+            if (balRmk === "") { warn("please Add Cash And BankBalance Remark..!"); return false; }
+
+            var loanWrk;
+            if ($("#rdo_spo1").is(":checked")) loanWrk = 1;
+            else if ($("#rdo_spo2").is(":checked")) loanWrk = 0;
+            else { warn("please select personalLoan ..!"); return false; }
+
+            var loanRmk = $.trim($("#txt_rmrk").val());
+            if (loanRmk === "") { warn("please Add personalLoan Remark..!"); return false; }
+
+            // Yes / No on every block, and at least one row when the answer is Yes
+            var segs = {};
+            for (var i = 0; i < BLOCKS.length; i++) {
+                var b = BLOCKS[i];
+                var answer = blockAnswer(b);
+
+                if (answer === undefined) { warn(b.msg); return false; }
+
+                if (answer === "1") {
+                    if ($("#tbl_" + b.key + " tbody tr").length === 0) {
+                        warn("No rows have been inserted. Please add at least one row before proceeding.");
+                        return false;
+                    }
+                    segs[b.seg] = blockRows(b);
+                }
+                else {
+                    segs[b.seg] = "";
+                }
+            }
+
+            // same header as the old page; the server replaces the last item with the logged-in user
+            var head = [cash, balRmk, loanWrk, loanRmk, dependant, seq, empCode()].join("~");
+
+            var payload = head;
+            for (var s = 2; s <= 8; s++) payload += "#" + (segs[s] || "");
+
+            $("#btnConfirm").prop("disabled", true);
+
+            $.ajax({
+                type: "POST",
+                url: appUrl("AssetandLiability/SaveMovable"),
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                data: { datas: payload },
+                success: function (response) {
+                    var code = resultCode(response);
+
+                    if (code === "111") {
+                        Swal.fire({ icon: "success", title: "Insert Successfully" }).then(function () {
+                            // last pending person -> next page, otherwise the next person
+                            if (remaining === 1) window.location.href = appUrl(AL.nextPage);
+                            else window.location.reload();
+                        });
+                    }
+                    else if (code === "222") {
+                        Swal.fire({ icon: "info", title: "Already Exits!!!!" }).then(function () {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                        $("#btnConfirm").prop("disabled", false);
+                        Swal.fire({ icon: "error", title: "Not saved", text: "Please try again." });
+                    }
+                },
+                error: function () {
+                    $("#btnConfirm").prop("disabled", false);
+                    Swal.fire({ icon: "error", title: "Failed", text: "Could not save. Please try again." });
+                }
+            });
+        }
+
+        // ------------------------------------------------------------
+        //  Start
+        // ------------------------------------------------------------
+        $(function () {
+
+            $("#blocks_a").html(BLOCKS.filter(function (b) { return b.area === "a"; }).map(blockHtml).join(""));
+            $("#blocks_b").html(BLOCKS.filter(function (b) { return b.area === "b"; }).map(blockHtml).join(""));
+
+            // Yes / No on a block
+            $(document).on("change", 'input[name^="yn_"]', function () {
+                var key = this.name.substring(3);
+                var yes = this.value === "1";
+                $("#box_" + key).toggleClass("d-none", !yes);
+                if (!yes) clearBlock(BMAP[key]);
+                else refreshVisibility(BMAP[key]);
+            });
+
+            // fields that depend on another field (vehicle financing)
+            $(document).on("change", "[id^='veh_']", function () { refreshVisibility(BMAP.veh); });
+
+            $(document).on("click", "[data-add]", function () { addRow($(this).data("add")); });
+
+            $(document).on("click", ".btn-del", function () {
+                var $tbl = $(this).closest("table");
+                $(this).closest("tr").remove();
+                if ($tbl.find("tbody tr").length === 0) $tbl.addClass("d-none");
+            });
+
+            $("nav[aria-label=breadcrumb] a[data-page]").each(function () {
+                $(this).attr("href", appUrl($(this).data("page")));
+            });
+
+            BLOCKS.forEach(refreshVisibility);
+
+            loadPersons();
+            loadPending();
+        });
+
+    </script>
+
+also change and in secon page in save inned to call post ok using AppSuiteMVC.Models.MenuModel;
+using AppSuiteMVC.Repository;
+using Microsoft.AspNetCore.Mvc;
+
+
+namespace AppSuiteMVC.Controllers
+{
+    public class AssetandLiabilityController : Controller
+    {
+        private readonly ILogger<AssetandLiabilityController> _logger;
+        private readonly DecryptionRepo _repo;
+        private readonly GetDataRepo _Grepo;
+        private readonly PostDataRepo _Prepo;
+        private readonly string baseurl;
+        private readonly string rootfolder;
+        private readonly int OTPacc_id;
+
+        private readonly IConfiguration _configuration;
+
+        public object? Session { get; private set; }
+        public string MainHeadID = "1";
+        public string ResponseData = "";
+
+        private const string ALModule = "ASSET_AND_LIABILITY";   // must match master_page.cshtml (AL.module) and your HRMSModuleAPI
+
+        public AssetandLiabilityController(
+            ILogger<AssetandLiabilityController> logger,
+            DecryptionRepo repo, GetDataRepo grepo,
+            PostDataRepo Prepo,
+            IConfiguration configuration)
+        {
+            _logger = logger;
+            _repo = repo;
+            _Grepo = grepo;
+            _Prepo = Prepo;
+            _configuration = configuration;
+            baseurl = _configuration.GetValue<string>("BasValues:BaseUrl") ?? "";
+            rootfolder = _configuration.GetValue<string>("BasValues:root") ?? "";
+            OTPacc_id = _configuration.GetValue("BasValues:otp_acc_id", 0);
+
+        }
+
+        /// ///////////////////////1st page main////////////
+        public IActionResult master_page(string datas)
+        {
+            ViewData["baseurl"] = baseurl;
+            ViewData["root"] = rootfolder;
+            ViewData["HeadName"] = datas;
+
+            var userId = HttpContext.Session.GetString("UserId");
+            var empName = HttpContext.Session.GetString("EmpName");
+            var brID = HttpContext.Session.GetString("BrID");
+
+            ViewBag.session = HttpContext.Session.GetString("SessionVal");
+            ViewBag.token = HttpContext.Session.GetString("TokenVal");
+
+            ViewData["EmpCode"] = userId;
+            ViewData["EmpName"] = empName;
+            ViewData["BrID"] = brID;
+
+            MenuListModel model = (MenuListModel)_Grepo.GetMainMenuData(userId, baseurl, MainHeadID);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public string SaveEmployeeFamily(string datas)
+        {
+            // datas = emp_code~emp_name~position~filedByEmp~spouseName~spousePos~spouseFiled#dep*name*pos*relation*filed!...
+            if (string.IsNullOrWhiteSpace(datas)) return null;
+
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId)) return null;
+
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
+            var host = HttpContext.Session.GetString("HostName") ?? ip;
+
+            // same layout the old createnew() sent to flag 2:  usr~ip~hostname~<form data>
+            string input = ALModule + "§" + "2‡" + userId + "~" + ip + "~" + host + "~" + datas;
+
+            return getAPIData(input);
+        }
+        /// /////////////////////////2nd page movable/////////////////////////
+        public IActionResult Movable_forms(string datas)
+        {
+            ViewData["baseurl"] = baseurl;
+            ViewData["root"] = rootfolder;
+            ViewData["HeadName"] = datas;
+
+            var userId = HttpContext.Session.GetString("UserId");
+            var empName = HttpContext.Session.GetString("EmpName");
+            var brID = HttpContext.Session.GetString("BrID");
+
+            ViewBag.session = HttpContext.Session.GetString("SessionVal");
+            ViewBag.token = HttpContext.Session.GetString("TokenVal");
+
+            ViewData["EmpCode"] = userId;
+            ViewData["EmpName"] = empName;
+            ViewData["BrID"] = brID;
+
+            MenuListModel model = (MenuListModel)_Grepo.GetMainMenuData(userId, baseurl, MainHeadID);
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public string SaveMovable(string datas)
+        {
+            // datas = cash~balRemark~loanFlag~loanRemark~dependant~seq~empcode#investments#vehicles#jewels#others#bank#insurance#vda
+            if (string.IsNullOrWhiteSpace(datas)) return null;
+
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId)) return null;
+
+            int hash = datas.IndexOf('#');
+            if (hash < 0) return null;
+
+            string[] head = datas.Substring(0, hash).Split('~');
+            if (head.Length != 7) return null;
+
+            head[6] = userId;   // never trust the employee code sent by the browser
+
+            string input = ALModule + "§" + "5‡" + string.Join("~", head) + datas.Substring(hash);
+
+            return getAPIData(input);
+        }
+
+
+        public string getAPIData(string datas)
+            {
+            string ApiPath = "hrmsmoduleapi/api/HRMSModuleAPI/GetDataHRMS/";
+            ApiPath = baseurl + ApiPath;
+            var token = HttpContext.Session.GetString("TokenValAPI");
+
+
+            string[] DataArray = datas.Split('§');
+
+            ViewData["baseurl"] = baseurl;
+            ViewData["root"] = rootfolder;
+            ViewData["HeadName"] = datas;
+            string flag = DataArray[0];
+            string indata = DataArray[1];
+            try
+            {
+                var resData = _Grepo.GetInternalPageData(indata, flag, ApiPath, token);
+                resData = resData.Replace(@"{""RESP"":", @"");
+
+                return resData;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        public async Task<dynamic> postAPIData(string datas)
+        {
+
+            string ApiPath = "hrmsmoduleapi/api/HRMSModuleAPI/PostDataHRMS";
+            ApiPath = baseurl + ApiPath;
+            var token = HttpContext.Session.GetString("TokenValAPI");
+            string[] DataArray = datas.Split('^');
+            string flag = DataArray[0];
+            string indata = DataArray[1];
+            try
+            {
+                var response = await _Prepo.PostInternalPageData(indata, flag, ApiPath, token);
+
+                return response.ToString();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("Token has expired"))
+                {
+                    return null;
+                }
+                return null;
+            }
+
+        }
+
+    }
+}
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Newtonsoft.Json;
+using NPOI.SS.Formula.PTG;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace AppSuiteMVC.Repository
+{
+    public class PostDataRepo
+    {
+        private readonly GetDataRepo _Grepo;
+
+        private readonly DecryptionRepo _decryptrepo;
+        public PostDataRepo( DecryptionRepo decryptrepo, GetDataRepo grepo)
+        {
+            _decryptrepo = decryptrepo;
+            _Grepo = grepo;
+        }
+
+        public bool IsTokenExpired(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                return false;
+
+            var handler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                var jwtToken = handler.ReadJwtToken(token);
+                DateTime expiry = jwtToken.ValidTo;
+                return expiry < DateTime.UtcNow;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        public string RemoveSpecialCharacters(string str)
+        {
+            //-._~+/
+            //  return Regex.Replace(str, "[^a-zA-Z0-9_~+/-]+", "", RegexOptions.Compiled);
+
+            return Regex.Replace(str, "[^a-zA-Z0-9_~+/-{}]+", "", RegexOptions.Compiled);
+
+        }
+
+
+        public async Task<dynamic> PostInternalPageData(string indata, string flag,string ApiPath,string token)
+        {
+
+            if (IsTokenExpired(token))
+            {
+                throw new Exception("Token has expired.Please log in again.");
+            }
+
+            string data = "";
+            string nonce = "";
+            string tag = "";
+            string key = "";
+            using (HttpClient client = new HttpClient())
+            {
+
+                string content = JsonConvert.SerializeObject(new { p_pagevalue = indata, p_paravalue = "1", p_flag = flag, nonce = "0", tag = "0", key = "0"});
+                var buffer = Encoding.UTF8.GetBytes(content);
+                var byteContent = new ByteArrayContent(buffer);
+                byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+                if (token != null)
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                }
+
+
+                string url2 = ApiPath;
+                HttpResponseMessage response2 = await client.PostAsync(url2, byteContent);
+                if (response2.IsSuccessStatusCode)
+                {
+                    data = response2.Content.ReadAsStringAsync().Result;
+                    data = data.Replace("\"\"", "");
+                    data = data.Replace("\'", "");
+                    data = data.Replace(@"""RESP"":", @"");
+
+                }
+
+               
+            }
+
+           
+
+            return data;
+        }
+
+        public async Task<dynamic> PostInternalPageData1(string indata, string flag, string ApiPath,string token)
+        {
+
+            if (IsTokenExpired(token))
+            {
+                throw new Exception("Token has expired.Please log in again.");
+            }
+
+            string data = "";
+            using (HttpClient client = new HttpClient())
+            {
+
+                string content = JsonConvert.SerializeObject(new { pagevalue = indata, paravalue = "1", flag = flag });
+                var buffer = Encoding.UTF8.GetBytes(content);
+                var byteContent = new ByteArrayContent(buffer);
+                byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+                if (token != null)
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                }
+
+                string url2 =  ApiPath;
+                HttpResponseMessage response2 = await client.PostAsync(url2, byteContent);
+                if (response2.IsSuccessStatusCode)
+                {
+                    data = response2.Content.ReadAsStringAsync().Result;
+                    data = data.Replace("\"\"", "");
+                    data = data.Replace("\'", "");
+                    data = data.Replace(@"""RESP"":", @"");
+
+                }
+
+              
+
+            }
+
+
+            return data;
+        }
+
+        public async Task<dynamic> PostInternalPageData2(string indata, string flag, string ApiPath, string token)
+        {
+            string data = "";
+            using (HttpClient client = new HttpClient())
+            {
+                // Add authorization header
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                string en_indata = indata;
+
+                // 2. Encrypt → returns "CipherText~Tag"
+                string enc_result = await _decryptrepo.Get_EncriptedText(en_indata);
+                string[] parts = enc_result.Split('~');
+                if (parts.Length != 4)
+                    throw new InvalidOperationException("Encryption must return 'CipherText~Nonce~Tag'");
+
+                string cipherText = parts[0];
+                string nonce = parts[1];
+                string tag = parts[2];
+                string key = parts[3];
+
+                string content = JsonConvert.SerializeObject(new
+                {
+                    p_pagevalue = cipherText,
+                    p_paravalue = "/1",
+                    p_flag = flag,
+                    Nonce = nonce,
+                    tag = tag,
+                    Key = key
+                });
+
+
+
+
+                var buffer = Encoding.UTF8.GetBytes(content);
+                var byteContent = new ByteArrayContent(buffer);
+                byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+                string url2 = ApiPath;
+                HttpResponseMessage response2 = await client.PostAsync(url2, byteContent);
+
+                if (response2.IsSuccessStatusCode)
+                {
+                    data = await response2.Content.ReadAsStringAsync();
+                    var respObj = JsonConvert.DeserializeObject<dynamic>(data);
+                    string respCipherText = respObj.Ciphertext;
+                    string respNonce = respObj.Nonce;
+                    string respTag = respObj.Tag;
+                    string resKey = respObj.Key;
+                    string decryptedText = await _decryptrepo.DecriptedText(respCipherText, respNonce, respTag, resKey);
+
+                    string cleanData = decryptedText;
+                    data = cleanData.Replace("\"\"", "");
+                    data = data.Replace(@"""RESP"":", @"");
+
+                    return data;
+                }
+                else
+                {
+                    // Handle non-success status codes
+                    string errorContent = await response2.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"API call failed with status code {response2.StatusCode}. Response: {errorContent}");
+                }
+            }
+        }
+
+
+        public async Task<dynamic> PostInternalPageDataResign(string indata, string flag, string ApiPath, string token)
+        {
+            string data = "";
+            using (HttpClient client = new HttpClient())
+            {
+                // Add authorization header
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                string en_indata = indata;
+
+                // 2. Encrypt → returns "CipherText~Tag"
+                string enc_result = await _decryptrepo.Get_EncriptedText(en_indata);
+                string[] parts = enc_result.Split('~');
+                if (parts.Length != 4)
+                    throw new InvalidOperationException("Encryption must return 'CipherText~Nonce~Tag'");
+
+                string cipherText = parts[0];
+                string nonce = parts[1];
+                string tag = parts[2];
+                string key = parts[3];
+
+                string content = JsonConvert.SerializeObject(new
+                {
+                    p_pagevalue = cipherText,
+                    p_paravalue = "/1",
+                    p_flag = flag,
+                    Nonce = nonce,
+                    Tag = tag,
+                    Key = key
+                });
+
+
+
+
+                var buffer = Encoding.UTF8.GetBytes(content);
+                var byteContent = new ByteArrayContent(buffer);
+                byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+                string url2 = ApiPath;
+                HttpResponseMessage response2 = await client.PostAsync(url2, byteContent);
+
+                if (response2.IsSuccessStatusCode)
+                {
+                    data = await response2.Content.ReadAsStringAsync();
+                    var respObj = JsonConvert.DeserializeObject<dynamic>(data);
+                    string respCipherText = respObj.Result.Ciphertext;
+                    string respNonce = respObj.Result.Nonce;
+                    string respTag = respObj.Result.Tag;
+                    string resKey = respObj.Result.Key;
+
+                    string decryptedText = await _decryptrepo.DecriptedText(respCipherText, respNonce, respTag, resKey);
+
+                    // Clean up decrypted text if needed
+                    string cleanData = decryptedText.Replace("\"\"", "").Replace(@"""RESP"":", @"");
+
+                    // Deserialize the decrypted JSON string into a list of objects
+                    var statusList = JsonConvert.DeserializeObject<List<dynamic>>(cleanData);
+
+                    // Build final response with ResponseData as an array
+                    var finalResponse = new
+                    {
+                        Result = statusList
+                    };
+
+                    // Serialize back to JSON
+                    string result = JsonConvert.SerializeObject(finalResponse);
+
+                    return result;
+                }
+                else
+                {
+                    // Handle non-success status codes
+                    string errorContent = await response2.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"API call failed with status code {response2.StatusCode}. Response: {errorContent}");
+                }
+            }
+        }
+
+
+
+        //This is for Session Decrypt
+        public async Task<dynamic> ApiSessionDecript(string indata, string baseurl, string ApiPath)
+        {
+            string data = "";
+            using (HttpClient client = new HttpClient())
+            {
+
+                string content = JsonConvert.SerializeObject(new { data = indata });
+                var buffer = Encoding.UTF8.GetBytes(content);
+                var byteContent = new ByteArrayContent(buffer);
+                byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+
+                string url2 = baseurl + ApiPath;
+                HttpResponseMessage response2 = await client.PostAsync(url2, byteContent);
+                if (response2.IsSuccessStatusCode)
+                {
+                    data = response2.Content.ReadAsStringAsync().Result;
+                    data = data.Replace("\"\"", "");
+                    data = data.Replace("\'", "");
+
+                }
+                else
+                {
+                    // Handle the failure case
+                    if (response2.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        data = response2.Content.ReadAsStringAsync().Result;
+                        data = data.Replace("\"\"", "");
+                        data = data.Replace("\'", "");
+                    }
+                    else
+                    {
+                        data = $"Error: {response2.StatusCode} - {response2.ReasonPhrase}";
+                    }
+                }
+
+
+            }
+
+            return data;
+        }
+        public async Task<dynamic> UploadDocument(string query, string code, string ApiPath,string token)
+        {
+
+            if (IsTokenExpired(token))
+            {
+                throw new Exception("Token has expired.Please log in again.");
+            }
+
+            string data = "";
+            using (HttpClient client = new HttpClient())
+            {
+
+                string content = JsonConvert.SerializeObject(new { p_query = query, docData = code });
+                var buffer = Encoding.UTF8.GetBytes(content);
+                var byteContent = new ByteArrayContent(buffer);
+                byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+                if (token != null)
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                }
+
+
+                string url2 = ApiPath;
+                HttpResponseMessage response2 = await client.PostAsync(url2, byteContent);
+                if (response2.IsSuccessStatusCode)
+                {
+                    data = response2.Content.ReadAsStringAsync().Result;
+                    data = data.Replace("\"\"", "");
+                    data = data.Replace("\'", "");
+                    // data = data.Replace(@"""RESP"":", @"");
+
+                }
+
+
+            }
+
+            data = RemoveSpecialCharacters(data);
+
+            return data;
+
+        }
+
+
+        public async Task<dynamic> PANHelperData(string PAN_NO, string empcode, string fid, string ApiPath)
+        {
+            string data = "";
+            using (HttpClient client = new HttpClient())
+            {
+
+                string content = JsonConvert.SerializeObject(new { pan = PAN_NO, firmid = fid, empid = empcode });
+                var buffer = Encoding.UTF8.GetBytes(content);
+                var byteContent = new ByteArrayContent(buffer);
+                byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+
+                string url2 = ApiPath;
+                HttpResponseMessage response2 = await client.PostAsync(url2, byteContent);
+
+                //
+
+                if (response2.IsSuccessStatusCode)
+                {
+                    data = await response2.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    // data = response2.Content.ReadAsStringAsync().Result;
+                    // data = data.Replace("\"\"", "");
+                    //data = data.Replace("\'", "");
+
+                }
+
+            }
+
+            // data = RemoveSpecialCharacters(data);
+
+            return data;
+        }
+
+
+    }
+}
+
+
+
+using AppSuiteMVC.Models.MenuModel;
+using Newtonsoft.Json;
+using Org.BouncyCastle.Ocsp;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Web;
+
+namespace AppSuiteMVC.Repository
+{
+    public class GetDataRepo
+    {
+
+        public GetDataRepo()
+        {
+
+        }
+
+        public bool IsTokenExpired(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                return false;
+
+            var handler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                var jwtToken = handler.ReadJwtToken(token);
+                DateTime expiry = jwtToken.ValidTo;
+                return expiry < DateTime.UtcNow;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        public dynamic GetMainMenuData(string EMPCODE, string baseurl, string MainHeadID)
+        {
+
+            MenuListModel menu_ViewModel = new MenuListModel();
+            List<MenuNameModel> _mN = new List<MenuNameModel>();
+            List<SubMenuNameModel> _sN = new List<SubMenuNameModel>();
+            List<ChildMenuNameModel> _cN = new List<ChildMenuNameModel>();
+            menu_ViewModel.EmpCode = EMPCODE;
+
+
+            using (var client = new HttpClient())
+            {
+
+                string link = baseurl + "MenuApi/api/MenuApi/GetMenuData/GET_MVCHRMS_MAINMENU/";
+                client.BaseAddress = new Uri(link + EMPCODE + "~" + MainHeadID + "/1");
+
+                HttpResponseMessage result = client.GetAsync(client.BaseAddress).Result;
+
+                if (result.IsSuccessStatusCode)
+                {
+                    string data = result.Content.ReadAsStringAsync().Result;
+
+                    data = data.Replace(@"{""menuResDto"":", @"");
+
+
+                    data = data.Replace(@"}]}", @"}]");
+                    data = data.Replace("\"\"", "\"");
+
+                    _mN = JsonConvert.DeserializeObject<List<MenuNameModel>>(data);
+                }
+                menu_ViewModel.M_NAME = _mN;
+                //-----------------------------------------------------------------------------------------------------------------
+
+
+                using (var sclient = new HttpClient())
+                {
+
+                    string slink = baseurl + "MenuApi/api/MenuApi/GetMenuData/GET_MVCHRMS_SUBMENU/";
+                    sclient.BaseAddress = new Uri(slink + EMPCODE + "/1");
+
+                    HttpResponseMessage sresult = sclient.GetAsync(sclient.BaseAddress).Result;
+
+                    if (sresult.IsSuccessStatusCode)
+                    {
+                        string sdata = sresult.Content.ReadAsStringAsync().Result;
+                        sdata = sdata.Replace(@"{""menuResDto"":", @"");
+                        sdata = sdata.Replace(@"}]}", @"}]");
+                        sdata = sdata.Replace("\"\"", "\"");
+
+                        _sN = JsonConvert.DeserializeObject<List<SubMenuNameModel>>(sdata);
+                    }
+                    menu_ViewModel.S_NAME = _sN;
+                    //-----------------------------------------------------------------------------------------------------------------
+                    return menu_ViewModel;
+
+                }
+            }
+        }
+
+        public string RemoveSpecialCharacters(string str)
+        {
+            //-._~+/
+            //  return Regex.Replace(str, "[^a-zA-Z0-9_~+/-]+", "", RegexOptions.Compiled);
+
+            return Regex.Replace(str, "[^a-zA-Z0-9_~+/-{}]+", "", RegexOptions.Compiled);
+
+        }
+
+        public dynamic GetMainHeadData(string baseurl, string MainHeadID)
+        {
+
+            var responseData = " ";
+
+            using (var client = new HttpClient())
+            {
+
+
+                string link = baseurl + "MenuApi/api/MenuApi/GetMenuData/GET_HRMSMAINHEADNAME/";
+                client.BaseAddress = new Uri(link + MainHeadID + "/1");
+
+                HttpResponseMessage result = client.GetAsync(client.BaseAddress).Result;
+
+                if (result.IsSuccessStatusCode)
+                {
+                    string data = result.Content.ReadAsStringAsync().Result;
+                    data = data.Replace(@"{""MenuResDto"":", @"");
+                    data = data.Replace(@"{""menuResDto"":", @"");
+                    data = data.Replace(@"}]}", @"}]");
+                    data = data.Replace("\"\"", "\"");
+
+                    responseData = JsonConvert.DeserializeObject<dynamic>(data);
+                }
+
+
+
+                //  ModelState.Clear();
+                return responseData;
+            }
+        }
+
+        public dynamic GetInternalPageData(string indata, string flag, string ApiPath, string token)
+        {
+
+            if (IsTokenExpired(token))
+            
+            {
+                throw new Exception("Token has expired.Please log in again.");
+            }
+
+            using (var client = new HttpClient())
+            {
+                string data = "";
+
+                string link = ApiPath + flag + "/" + indata + "/1";
+
+
+                string encodedFlag = HttpUtility.UrlEncode(flag).Replace("+", " ");
+                string encodedIndata = HttpUtility.UrlEncode(indata).Replace("+", " ");
+
+                // Construct full URL safely
+                string url = $"{ApiPath}{encodedFlag}/{encodedIndata}/1";
+
+
+                // Create the request
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                request.Headers.Add("Authorization", $"Bearer {token}");
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                {
+                    data = reader.ReadToEnd();
+                }
+
+
+                //  ModelState.Clear();
+                return data;
+
+                
+            }
+        }
+
+
+
+
+        public dynamic OTPHelperData(string flag, string indata, string baseurl, string ApiPath)
+        {
+            //string[] DataArray = indata.Split('^');
+
+            using (var client = new HttpClient())
+            {
+                string data = "";
+
+                string link = baseurl + ApiPath;
+
+                client.BaseAddress = new Uri(link + flag + "/" + indata);
+
+                HttpResponseMessage result = client.GetAsync(client.BaseAddress).Result;
+
+                if (result.IsSuccessStatusCode)
+                {
+                    data = result.Content.ReadAsStringAsync().Result;
+
+                    data = data.Replace("\"\"", "");
+                    data = data.Replace("\'", "");
+
+                }
+
+                return data;
+            }
+        }
+
+
+
+        public dynamic PANHelper(string pan_no, string emp, string fid, string baseurl, string ApiPath)
+        {
+
+            using (var client = new HttpClient())
+            {
+                string data = "";
+
+                string link = baseurl + ApiPath;
+
+                client.BaseAddress = new Uri(link + pan_no + "/" + emp + "/" + fid);
+
+                HttpResponseMessage result = client.GetAsync(client.BaseAddress).Result;
+
+                if (result.IsSuccessStatusCode)
+                {
+                    data = result.Content.ReadAsStringAsync().Result;
+                    data = data.Replace(@"{""MenuResDto"":", @"");
+                    data = data.Replace(@"{""menuResDto"":", @"");
+                    //  data = data.Replace(@"}]}", @"}]");
+                    data = data.Replace("\"\"", "");
+                    data = data.Replace("\'", "");
+
+                }
+
+                return data;
+            }
+        }
+
+        public dynamic GetInternalPageData1(string indata, string flag, string ApiPath, string token)
+        {
+
+               
+            if (IsTokenExpired(token))
+
+            {
+                throw new Exception("Token has expired.Please log in again.");
+            }
+
+            using (var client = new HttpClient())
+            {
+                client.Timeout = TimeSpan.FromMinutes(5);
+
+                string data = "";
+
+                string link = ApiPath + flag + "/" + indata + "/1";
+
+                string encodedFlag = HttpUtility.UrlEncode(flag).Replace("+", " ");
+                string encodedIndata = HttpUtility.UrlEncode(indata).Replace("+", " ");
+
+                // Construct full URL safely
+                string url = $"{ApiPath}{encodedFlag}/{encodedIndata}/1";
+
+
+                // Create the request
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                request.Headers.Add("Authorization", $"Bearer {token}");
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                {
+                    data = reader.ReadToEnd();
+                }
+
+
+                //  ModelState.Clear();
+                return data;
+
+            }
+        }
+
+    }
+}
+
+ ok in get create or replace procedure proc_mod_hrms_get(        p_flag    in varchar2,
+                                                      p_pageval in varchar2 default ' ',
+                                                      p_paraval in varchar2 default ' ',
+                                                      p_as_outresult out result_type.qry_result) is
+  v_spliter_a    Array;
+  V_DEPID        NUMBER;
+  dept_head      number;
+  major_dep_head number;
+  dept_id        varchar2(50);
+  V_ACCES_CNT    NUMBER;
+  V_ACC_DEP      NUMBER;
+  V_blockCount   number;
+  v_blockID      varchar2(50);
+  v_reason       number;
+  v_cnt          number;
+  v_cnt1         number;
+  v_cnt2         number;
+  v_cnt3         number;
+  v_cnt4         number;
+  v_cnt5         number;
+  v_cnt6         number;
+  V_MSG          varchar2(250);
+  v_err_status   varchar2(250);
+  v_firmid       NUMBER;
+  state_id       number;
+  v_postid       number;
+  V_headid       number;
+  V_brid         number;
+  V_dpid         number;
+  v_desgid       number;
+  V_regid        number;
+  V_areaid       number;
+  V_GRADE        VARCHAR2(10);
+  v_seq          number;
+  v_input        varchar2(250);
+  v_array        array;
+  v_report_query  varchar2(4000);
+  V_dpt_id  varchar2(100);
+  dup_reg_audit   number;
+  V_REG        number;
+   v_firm       NUMBER;
+p_errorStat number;
+v_dep  number;
+  ----------
+p_errorMsg  varchar(500);
+p_OutData varchar(500);
+
+  errorStat number;
+  errorMsg  varchar2(300);
+  v_from_date date;
+  v_to_date date;
+  v_category number;
+  v_type number;
+  v_id number;
+  v_dept number;
+  V_FORMACCESS NUMBER;
+  V_NATHEAD NUMBER;
+  V_ACCESS NUMBER;
+  BCNT NUMBER;
+
+begin
+
+  v_spliter_a := splitstr(p_pageval, '~');
+
+  IF p_flag = 'GETEMPPOST' then
+    open p_as_outresult for
+      SELECT -1 pid, '----SELECT EMPLOY POST---' pname
+        FROM DUAL
+      UNION ALL
+      select T.POST_ID pid, T.POST_NAME pname
+        from POST_MST t
+       WHERE T.POST_ID IN (54, 56, 61, 63, 58, 65, 67);
+
+------------------------------------------------------------
+ ELSIF p_flag = 'ASSET_AND_LIABILITY' THEN
+
+   v_spliter_a := splitstr(p_pageval, '‡');
+
+   Proc_Hrm_Asset_And_Liability_mvc_new(
+      P_FLAG         => v_spliter_a(1),
+      P_INDATA       => v_spliter_a(2),
+      P_AS_OUTRESULT => p_as_outresult,
+      P_ERRORSTAT    => errorStat,
+      P_ERRORMSG     => errorMsg
+   );
+-----------------------------------------------------------
+
+
+
+
+
+
+ end if;
+end; and post create or replace procedure proc_mod_hrms_post(p_flag         in varchar2,
+                                               p_pageval      in varchar2 default ' ',
+                                               p_paraval      in varchar2 default ' ',
+                                               p_as_outresult out result_type.qry_result) is
+  v_spliter_a Array;
+  v_spliter_b Array;
+  v_spliter_c Array;
+
+  ----------
+  errorStat      number;
+  errMsg         varchar2(300);
+  errStat        number;
+  transId        number;
+  errorMsg       varchar2(300);
+  errorStat1     number;
+  errorMsg1       varchar2(300);
+  CNT1           NUMBER;
+  v_array        array;
+  major_dep_head NUMBER;
+  dept_head      NUMBER;
+  EMP_POST       NUMBER;
+  EMP_DESIG      NUMBER;
+  v_count1       NUMBER;
+  EMP_BR         NUMBER;
+  slno           NUMBER;
+  v_cnt          NUMBER;
+  v_cntt         number;
+ cnt          NUMBER;
+ v_run_id      number;
+ FLAG number;
+ 
+  count_esdt     NUMBER;
+  nomin_type     NUMBER;
+  p_OutData      varchar2(5000);
+  transsId       Number;
+  v_claim_year   number;
+  v_exist_status number;
+  v_age          number;
+  sts            number;
+  v_post         number;
+  v_dept         number;
+  v_branch       number;
+  cnt_branch     number;
+  msme_primary   number;
+  cnt_assign     number;
+  v_emp_cnt1     number;
+  v_emp_cnt2     number;
+  v_emp_cnt3     number;
+  v_emp_cnt4     number;
+  v_appr_post    number;
+  v_app_dept     number;
+  v_cap_amount   number;
+  p_errorMsg     VARCHAR2(5000);
+  -----------
+
+  v_result VARCHAR2(100);
+  p_Data   SYS_REFCURSOR;
+  p_cnt    number;
+  p_val    number;
+  v_main  array;
+  v_sub   array;
+   fdate           varchar(100);
+  tdate           varchar(100);
+  relive_date     date;
+  resigtermicnt   number;
+  
+  
+  menu_cnt        number;
+  dep_head        number;
+  dep_cnt         number;
+  fdesi              number;
+  fpost              number;
+  branid             number;
+  deptid             number;
+  v_frdt             date;
+  v_date_diffr       number;
+  v_joint_custodian  number;
+  v_handover_pndg    number;
+  v_count_handover   number;
+  v_resig_id         number;
+  v_noticefrom_dt    date;
+  v_relieving_dt     date;
+  v_requested        number;
+  v_joint_custodian1 number;
+  v_joint_custodian2 number;
+  
+   frdt       date;
+  date_diffr number;
+  v_count    number;
+  V_CNT1     number;
+designid     number;
+v_order_id   number;
+  --v_count number;
+  resg_todate date;
+  resg_frdate date;
+  
+  v_resignid number;
+  v_exists  number;
+  v_empcount  number;
+  pending_app number;
+  BCNT number;
+ 
+
+  ------------------------
+  seq_no number;
+  seq_id number;
+  -----------------------
+  reliving_dt date;
+  v_empcnt    number;
+  -------------------------
+  d_cnt number;
+  sus_cnt number;
+  p_errorStat number;
+  rha_empcode number;
+  pending_rha number;
+  pending_no  number;
+  v_param     number;
+  ESICNT  number;
+   V_GRADE         VARCHAR2(10);
+ V_MSG           varchar2(250);
+ ----
+v_firm      number;
+post_info varchar2(200);
+v_seq     number;
+ 
+  v_cnt2         number;
+  v_cnt3         number;
+  v_cnt4         number;
+  v_cnt5         number;
+  v_cnt6         number;
+  P_FIRM_ID number;
+  
+begin
+
+  v_spliter_a := splitstr(p_pageval, '~');
+
+  IF P_FLAG = 'HRM_IDCARD_POST' then
+  
+    v_array := array();
+  
+    v_array := splitstr(p_pageval, '*');
+  
+    proc_mod_hrm_idcard_post(v_array(1),
+                             v_array(2),
+                             v_array(3),
+                             p_as_outresult);
+  
+------------------------------------------------------------
+ ELSIF p_flag = 'ASSET_AND_LIABILITY' THEN
+
+   v_spliter_a := splitstr(p_pageval, '‡');
+
+   Proc_Hrm_Asset_And_Liability_mvc_new(
+      P_FLAG         => v_spliter_a(1),
+      P_INDATA       => v_spliter_a(2),
+      P_AS_OUTRESULT => p_as_outresult,
+      P_ERRORSTAT    => errorStat,
+      P_ERRORMSG     => errorMsg
+   );
+-----------------------------------------------------------
+
+
+
+END IF;
+end; and alos i chegd some create or replace procedure Proc_Hrm_Asset_And_Liability_mvc_new(p_flag         in number,
+                                                         p_indata       varchar2,
+                                                         p_as_outresult out sys_refcursor,
+                                                         p_errorstat    out number,
+                                                         p_errormsg     out varchar2) as
+
+  v_spliter_a  array;
+  v_spliter_b1 array;
+  v_spliter_d  array;
+  v_spliter_d1 array;
+  v_spliter_c  array;
+  v_spliter_b2 array;
+  v_spliter_b3 array;
+  v_spliter_b4 array;
+  v_spliter_d2 array;
+  v_spliter_d3 array;
+  v_spliter_b  array;
+  cn_v         NUMBER;
+  V_CNT        NUMBER;
+  seq1         number;
+  v_ct         number;
+  v_nc         number;
+  v_curyear    date;
+  v_hcnt       number;
+  headcode     number;
+  v_ecnt       number;
+  e_vnt        number;
+  empcode      number;
+  dept         number;
+  --- v_curyear1 date;
+  V_CNT1 number;
+  
+  v_ErrID             tbl_hrms_error_dtl.error_id%type;
+  v_ErrDtl            tbl_hrms_error_dtl.error_details%type;
+  v_ErrDesc           tbl_hrms_error_dtl.error_description%type;
+
+begin
+  v_spliter_a := splitstr(p_indata, '~');
+
+  select t.fiscal_year into v_curyear from mana0809.FISCAL_YEAR_vw t;
+
+  ---select sysdate into v_curyear from dual;
+
+  if p_flag = 1 then
+    open p_as_outresult for
+    
+      select distinct e.emp_code, e.emp_name, T.DESIGNATION
+        from MANA0809.employee_master e, MANA0809.DESIGNATION_MASTER T
+       where E.DESIGNATION_ID = T.DESIGNATION_ID
+         AND E.STATUS_ID = 1
+         and E.EMP_CODE = v_spliter_a(1);
+    ----------------------------------------------------------------
+  
+  elsif p_flag = 2 then
+  
+    v_spliter_a := splitstr(p_indata, '#');
+    v_spliter_c := splitstr(v_spliter_a(1), '~');
+  
+    seq1 := SEQ_ASSET_LIABILITY.NEXTVAL;
+  
+    SELECT count(*)
+      INTO V_CNT
+      FROM TBL_HRM_ASSET_AND_LIABILITY T
+     WHERE T.EMP_CODE = v_spliter_c(4)
+       AND to_date(t.enter_date) >= to_date(v_curyear);
+  
+    IF (V_CNT = 0) THEN
+      insert into MANA0809.TBL_HRM_ASSET_AND_LIABILITY
+        (SEQ_ID,
+         EMP_CODE,
+         ENTER_DATE,
+         ENTER_BY,
+         IP_ADDRESS,
+         HOST_NAME,
+         BR_ID,
+         POST_ID,
+         DEP_ID,
+         DESIG_ID)
+        select seq1,
+               v_spliter_c(4),
+               sysdate,
+               v_spliter_c(1),
+               v_spliter_c(2),
+               v_spliter_c(3),
+               t.branch_id,
+               t.post_id,
+               t.department_id,
+               T.DESIGNATION_ID
+          from employee_master t
+         where t.emp_code = v_spliter_c(1)
+           and t.status_id = 1;
+    
+      insert into mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+        (seq_id,
+         sequence,
+         emp_name,
+         emp_code,
+         position,
+         DEPENDANT,
+         spouse_and_depen_name,
+         
+         whether_form_being_filed_by_him_her,
+         
+         categorys,
+         status)
+      values
+        (seq1,
+         SEQ_ASSET_LIABILITY_DETAILS.NEXTVAL,
+         v_spliter_c(5),
+         v_spliter_c(4),
+         v_spliter_c(6),
+         'self',
+         v_spliter_c(5),
+         v_spliter_c(7),
+         1,
+         0);
+    
+      insert into mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+        (seq_id,
+         sequence,
+         emp_name,
+         emp_code,
+         position,
+         spouse_and_depen_name,
+         DEPENDANT,
+         
+         whether_form_being_filed_by_him_her,
+         
+         categorys,
+         status)
+      values
+        (seq1,
+         SEQ_ASSET_LIABILITY_DETAILS.NEXTVAL,
+         v_spliter_c(5),
+         v_spliter_c(4),
+         v_spliter_c(9),
+         v_spliter_c(8),
+         'spouse',
+         v_spliter_c(10),
+         
+         2,
+         0);
+    
+      v_spliter_b1 := splitstr(v_spliter_a(2), '!');
+      for k in 1 .. v_spliter_b1.count loop
+      
+        v_spliter_d := splitstr(v_spliter_b1(k), '*');
+      
+        if (v_spliter_b1(k) is not null) then
+        
+          --399399~127.0.0.1~38-7A-0E-6E-87-5A~399399~RESHMA  K R~SR. ASST.~0~GHDDJ~FHDSFS~1~1#1*SFDHG*ADSD*0!1*GHDGSJ*DBSDBM*1!3*EHDJE*GFHEGDUW*1!
+        
+          insert into TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+            (SEQ_ID,
+             sequence,
+             EMP_NAME,
+             EMP_CODE,
+             WHETHER_FORM_BEING_FILED_BY_HIM_HER,
+             DEPENDANT,
+             spouse_and_depen_name,
+             POSITION,
+             RELATION,
+             CATEGORYS,
+             STATUS)
+          values
+            (seq1,
+             SEQ_ASSET_LIABILITY_DETAILS.NEXTVAL,
+             v_spliter_c(5),
+             v_spliter_c(4),
+             v_spliter_d(5),
+             v_spliter_d(1),
+             v_spliter_d(2),
+             v_spliter_d(3),
+             v_spliter_d(4),
+             3,
+             0);
+        
+        end if;
+      
+      end loop;
+    
+      commit;
+    
+      open p_as_outresult for
+      
+        SELECT '111' FROM DUAL;
+    
+    ELSE
+      open p_as_outresult for
+      
+        SELECT '222' FROM DUAL;
+    END IF;
+    ---------------------------------------------------------------------------
+  elsif p_flag = 3 then
+  
+    open p_as_outresult for
+    
+      select '-1' dependant,
+             '----------------------------select-----------------------------' dependant_name
+        from dual
+      
+      UNION ALL
+      
+      select t.dependant,
+             t.dependant || ' - ' || t.Spouse_And_Depen_Name || '-' ||
+             t.sequence as dependant_name
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T
+       where t.status = 0
+         AND t.emp_code = v_spliter_a(1)
+         and t.spouse_and_depen_name <> 'nill';
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 4 then
+    open p_as_outresult for
+    
+      SELECT t.spouse_and_depen_name, t.position
+        FROM TBL_HRM_ASSET_AND_LIABILITY_DETAILS T
+       WHERE t.sequence = v_spliter_a(1)
+         AND t.emp_code = v_spliter_a(2);
+    ------------------------------------------------------------------------
+     ---added on 21-11-2026------------------------------------------------
+  elsif p_flag = 5 then
+    v_spliter_a := splitstr(p_indata, '#');
+    v_spliter_c := splitstr(v_spliter_a(1), '~');
+  
+    -- seq1 := SEQ_ASSET_LIABILITY.NEXTVAL;
+  
+    select count(*)
+      into v_ct
+      from TBL_HRM_MOVABLE_FORMS t
+     where t.seq_id = v_spliter_c(6);
+  
+    if (v_ct = 0) then
+      insert into MANA0809.TBL_HRM_MOVABLE_FORMS
+        (SEQ_ID,
+         CASH_AND_BANKBALANCE,
+         PERSONAL_LOAN,
+         REMARK,
+         DEPENDANT,
+         PERSONAL_RMRK,
+         enter_by,
+         enter_date)
+      values
+        (v_spliter_c(6),
+         v_spliter_c(1),
+         v_spliter_c(3),
+         v_spliter_c(2),
+         v_spliter_c(5),
+         v_spliter_c(4),
+         v_spliter_c(7),
+         sysdate);
+    
+      if (v_spliter_a(2) IS NOT NULL) then
+      v_spliter_b1 := splitstr(v_spliter_a(2), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          declare
+            v_issuer varchar2(200);
+            v_units  varchar2(50);
+          begin
+            if v_spliter_d.count >= 4 then v_issuer := nullif(trim(v_spliter_d(4)), '-'); end if;
+            if v_spliter_d.count >= 5 then v_units  := nullif(trim(v_spliter_d(5)), '-'); end if;
+
+            insert into TBL_HRM_ASSET_INVESTMENT
+              (SEQ_ID, INVESTMENT, AMOUNT, REMARK, DEPENDANT, ISSUER, UNITS_QTY)
+            values
+              (v_spliter_c(6), v_spliter_d(1), v_spliter_d(2), v_spliter_d(3), v_spliter_c(5),
+               v_issuer, v_units);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------------------------- vehicles
+    if (v_spliter_a(3) IS NOT NULL) then
+      v_spliter_b2 := splitstr(v_spliter_a(3), '!');
+      for k in 1 .. v_spliter_b2.count loop
+        if (v_spliter_b2(k) is not null) then
+          v_spliter_d1 := splitstr(v_spliter_b2(k), '*');
+          declare
+            v_mode   varchar2(30);
+            v_lender varchar2(200);
+            v_loan   number;
+            v_out    number;
+            v_emi    number;
+            v_co     varchar2(200);
+          begin
+            if v_spliter_d1.count >= 6  then v_mode   := nullif(trim(v_spliter_d1(6)),  '-'); end if;
+            if v_spliter_d1.count >= 7  then v_lender := nullif(trim(v_spliter_d1(7)),  '-'); end if;
+            if v_spliter_d1.count >= 8  then v_loan   := to_number(nullif(trim(v_spliter_d1(8)),  '-')); end if;
+            if v_spliter_d1.count >= 9  then v_out    := to_number(nullif(trim(v_spliter_d1(9)),  '-')); end if;
+            if v_spliter_d1.count >= 10 then v_emi    := to_number(nullif(trim(v_spliter_d1(10)), '-')); end if;
+            if v_spliter_d1.count >= 11 then v_co     := nullif(trim(v_spliter_d1(11)), '-'); end if;
+
+            insert into TBL_HRM_ASSET_VEHICLES
+              (SEQ_ID, SEQUENCE, VEHICLES, REGISTRATION_NUMBER, YEAR_OF_PURCHASE, AMOUNT_PAID, REMARK, DEPENDANT,
+               PAYMENT_MODE, LENDER_NAME, LOAN_AMOUNT, OUTSTANDING_AMOUNT, EMI_AMOUNT, CO_APPLICANT)
+            values
+              (v_spliter_c(6), SEQ_ASSET_LIABILITY_DETAILS.NEXTVAL, v_spliter_d1(1), v_spliter_d1(2),
+               v_spliter_d1(3), v_spliter_d1(4), v_spliter_d1(5), v_spliter_c(5),
+               v_mode, v_lender, v_loan, v_out, v_emi, v_co);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------------------------- jewellery
+    if (v_spliter_a(4) IS NOT NULL) then
+      v_spliter_b3 := splitstr(v_spliter_a(4), '!');
+      for k in 1 .. v_spliter_b3.count loop
+        if (v_spliter_b3(k) is not null) then
+          v_spliter_d2 := splitstr(v_spliter_b3(k), '*');
+          declare
+            v_value  number;
+            v_source varchar2(200);
+          begin
+            if v_spliter_d2.count >= 4 then v_value  := to_number(nullif(trim(v_spliter_d2(4)), '-')); end if;
+            if v_spliter_d2.count >= 5 then v_source := nullif(trim(v_spliter_d2(5)), '-'); end if;
+
+            insert into TBL_HRM_ASSET_JEWELLERY
+              (SEQ_ID, JEWELS, WEIGHT, REMARK, DEPENDANT, APPROX_VALUE, SOURCE_OF_FUNDS)
+            values
+              (v_spliter_c(6), v_spliter_d2(1), v_spliter_d2(2), v_spliter_d2(3), v_spliter_c(5),
+               v_value, v_source);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------------------------- other assets
+    if (v_spliter_a(5) IS NOT NULL) then
+      v_spliter_b4 := splitstr(v_spliter_a(5), '!');
+      for k in 1 .. v_spliter_b4.count loop
+        if (v_spliter_b4(k) is not null) then
+          v_spliter_d3 := splitstr(v_spliter_b4(k), '*');
+          declare
+            v_source varchar2(200);
+          begin
+            if v_spliter_d3.count >= 4 then v_source := nullif(trim(v_spliter_d3(4)), '-'); end if;
+
+            insert into TBL_HRM_OTHER_ASSETS
+              (SEQ_ID, OTHER_ASSETS, VALUE, REMARK, DEPENDANT, SOURCE_OF_FUNDS)
+            values
+              (v_spliter_c(6), v_spliter_d3(1), v_spliter_d3(2), v_spliter_d3(3), v_spliter_c(5),
+               v_source);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ------------------------------------------- NEW: bank / deposit accounts (Q2)
+    if v_spliter_a.count >= 6 and v_spliter_a(6) is not null then
+      v_spliter_b1 := splitstr(v_spliter_a(6), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_BANK_DEPOSIT
+            (SEQ_ID, DEPENDANT, BANK_NAME, BRANCH, ACCOUNT_TYPE, BALANCE)
+          values
+            (v_spliter_c(6), v_spliter_c(5), v_spliter_d(1), v_spliter_d(2), v_spliter_d(3),
+             to_number(v_spliter_d(4)));
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------- NEW: insurance / PPF (Q6)
+    if v_spliter_a.count >= 7 and v_spliter_a(7) is not null then
+      v_spliter_b1 := splitstr(v_spliter_a(7), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_INSURANCE_PPF
+            (SEQ_ID, DEPENDANT, INSTRUMENT_TYPE, PROVIDER, POLICY_NO, SUM_ASSURED)
+          values
+            (v_spliter_c(6), v_spliter_c(5), v_spliter_d(1), v_spliter_d(2), v_spliter_d(3),
+             to_number(v_spliter_d(4)));
+        end if;
+      end loop;
+    end if;
+
+    ------------------------------------- NEW: virtual digital assets (Q8)
+    if v_spliter_a.count >= 8 and v_spliter_a(8) is not null then
+      v_spliter_b1 := splitstr(v_spliter_a(8), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_VDA
+            (SEQ_ID, DEPENDANT, ASSET_TYPE, QUANTITY, APPROX_VALUE)
+          values
+            (v_spliter_c(6), v_spliter_c(5), v_spliter_d(1), v_spliter_d(2),
+             to_number(v_spliter_d(3)));
+        end if;
+      end loop;
+    end if;
+
+    commit;
+    
+      update TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         set z.status = 1
+       where z.sequence = v_spliter_c(6);
+    
+      commit;
+    
+      open p_as_outresult for
+      
+        select '111' from dual;
+    
+    else
+      open p_as_outresult for
+      
+        select '222' from dual;
+    
+    end if;
+    --------------------end 21-11-2026-----------------------------------------------
+  
+  elsif p_flag = 6 then
+  
+    open p_as_outresult for
+    
+      select -1 sequence,
+             '----------------------------select-----------------------------' dependant_name
+        from dual
+      
+      UNION ALL
+      
+      select t.sequence,
+             t.dependant || '-' || t.Spouse_And_Depen_Name || '-' ||
+             t.sequence as dependant_name
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T
+       where t.status = 1
+         AND t.emp_code = v_spliter_a(1)
+         and t.spouse_and_depen_name <> 'nill';
+    -----------------------------------------------------------------------------
+  elsif p_flag = 7 then
+    open p_as_outresult for
+    
+      select -1 state_id,
+             '---------------------------select----------------------------' state_name
+        from dual
+      
+      UNION ALL
+      
+      select s.state_id, s.state_name
+        from mana0809.state_master s;
+  
+    ---------------------------------------------------------------------------------  
+  elsif p_flag = 8 then
+    open p_as_outresult for
+    
+      select -1 district_id,
+             '---------------------------select----------------------------' district_name
+        from dual
+      
+      UNION ALL
+      
+      select d.district_id, d.district_name
+        from mana0809.DISTRICT_MASTER d
+       where d.state_id = v_spliter_a(1);
+  
+    --------------------------------------------------------------------------
+  elsif p_flag = 9 then
+    v_spliter_b := splitstr(p_indata, '#');
+  
+    SELECT COUNT(*)
+      INTO V_CNT
+      FROM mana0809.TBL_HRM_IMMOVABLE_FORM m
+     WHERE m.seq_id = v_spliter_b(2);
+  
+    IF V_CNT = 0 THEN
+    
+      v_spliter_b1 := splitstr(v_spliter_b(3), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        v_spliter_c := splitstr(v_spliter_b1(k), '*');
+        if (v_spliter_b1(k) is not null) then
+          insert into mana0809.TBL_HRM_IMMOVABLE_FORM
+            (SEQ_ID,
+             DEPENDANT,
+             PROPERTY_TYPE,
+             DETAILS,
+             STATE_ID,
+             DISTRICT_ID,
+             DIVISION,
+             THALUK,
+             VILLAGE,
+             DISTINCTIVE_NUMBER,
+             TOTAL_AREA,
+             TYPE_OF_LAND,
+             HOW_ACQUIRED,
+             NAME_OF_PERSON_FROM_WHOM_ACQ,
+             ADDRESS,
+             CONNECTION_TO_EMP,
+             COST_OF_ACQ,
+             PRESENT_VALUE,
+             ANNUAL_INCOME,
+             REMARK,
+             immovable_form)
+          values
+            (v_spliter_b(2),
+             v_spliter_b(1),
+             v_spliter_c(1),
+             v_spliter_c(2),
+             v_spliter_c(3),
+             v_spliter_c(4),
+             v_spliter_c(5),
+             v_spliter_c(6),
+             v_spliter_c(7),
+             v_spliter_c(8),
+             v_spliter_c(9),
+             v_spliter_c(10),
+             v_spliter_c(11),
+             v_spliter_c(12),
+             v_spliter_c(13),
+             v_spliter_c(14),
+             v_spliter_c(15),
+             v_spliter_c(16),
+             v_spliter_c(17),
+             v_spliter_c(18),
+             0);
+        end if;
+      end loop;
+      commit;
+    
+      update mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         set z.status = 2
+       where z.sequence = v_spliter_b(2);
+      commit;
+    
+      open p_as_outresult for
+        select '111' from dual;
+      return;
+    ELSE
+      -- Return result for the case when insert is not performed
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+      RETURN;
+    END IF;
+  
+    --------------------------------------------------------------------------------- 
+  elsif p_flag = 10 then
+  
+    /*insert into mana0809.TBL_HRM_IMMOVABLE_FORM
+      (seq_id, dependant, immovable_form)
+    values
+      (v_spliter_a(2), v_spliter_a(1), 1);
+    commit;
+    
+    update mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+       set z.status = 2
+     where z.sequence = v_spliter_a(2);
+    commit;
+    open p_as_outresult for
+      select '111' from dual;
+    return;*/
+    SELECT COUNT(*)
+      INTO V_CNT
+      FROM mana0809.TBL_HRM_IMMOVABLE_FORM m
+     WHERE m.seq_id = v_spliter_a(2);
+  
+    IF V_CNT = 0 THEN
+      INSERT INTO mana0809.TBL_HRM_IMMOVABLE_FORM
+        (seq_id, dependant, immovable_form)
+      VALUES
+        (v_spliter_a(2), v_spliter_a(1), 1);
+      COMMIT;
+    
+      -- Update the status
+      UPDATE mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         SET z.status = 2
+       WHERE z.sequence = v_spliter_a(2);
+      COMMIT;
+    
+      -- Return result for the case when insert is performed
+      OPEN p_as_outresult FOR
+        SELECT '111' FROM dual;
+      RETURN;
+    ELSE
+      -- Return result for the case when insert is not performed
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+      RETURN;
+    END IF;
+  
+    --------------------------------------------------------------------------- 
+  elsif p_flag = 11 then
+  
+    select count(*)
+      into cn_v
+      from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T
+     where t.status = 0
+       AND t.emp_code = v_spliter_a(1)
+       and t.spouse_and_depen_name <> 'nill';
+  
+    open p_as_outresult for
+    
+      select cn_v from dual;
+  
+    ------------------------------------------------------------------------
+  
+  elsif p_flag = 12 then
+  
+    open p_as_outresult for
+    
+      select -1 sequence,
+             '----------------------------select-----------------------------' dependant_name
+        from dual
+      
+      UNION ALL
+      
+      select t.sequence,
+             t.dependant || '-' || t.Spouse_And_Depen_Name || '-' ||
+             t.sequence as dependant_name
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T
+       where t.status = 2
+         AND t.emp_code = v_spliter_a(1)
+         and t.spouse_and_depen_name <> 'nill';
+    -----------------------------------------------------------------------------
+    --------------------------------------------------------------------------------- 
+  elsif p_flag = 13 then
+  
+    SELECT COUNT(*)
+      INTO V_CNT
+      FROM mana0809.TBL_HRM_DEBT_LIABILITY d
+     WHERE d.seq_id = v_spliter_a(2);
+    IF V_CNT = 0 THEN
+      insert into mana0809.TBL_HRM_DEBT_LIABILITY
+        (seq_id, dependant, dept_liability)
+      values
+        (v_spliter_a(2), v_spliter_a(1), 1);
+      commit;
+    
+      update mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         set z.status = 3
+       where z.sequence = v_spliter_a(2);
+      commit;
+    
+      ----employee work alert remove----
+    
+      select d.emp_code
+        into empcode
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T, employee_master d
+      
+       where d.emp_code = t.emp_code
+            
+         and t.sequence = v_spliter_a(2);
+    
+      select d1.direct_manager
+        into headcode
+        from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+       where d.emp_code = d1.emp_code
+         and d.emp_code = empcode;
+    
+      select count(*)
+        into e_vnt
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+       where c.spouse_and_depen_name <> 'nill'
+         and not exists (select *
+                from TBL_HRM_DEBT_LIABILITY g
+               where g.seq_id = c.sequence)
+         and c.emp_code = empcode;
+    
+      if e_vnt = 0 then
+      
+        update EMPLOYEE_BLOCK_DTL f
+           set f.remove_date = sysdate, f.block_status = 0
+         where f.block_id = 9997
+           and f.emp_code = empcode
+           and f.block_status = 1
+              /*and f.block_date=sysdate;*/
+           and to_date(f.block_date) = to_date(sysdate);
+        commit;
+      
+      end if;
+    
+      ------head work alert remove----------
+    
+      select count(*)
+        into v_ecnt
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS a, employee_master s
+       where s.emp_code = a.emp_code
+         and a.sequence = v_spliter_a(2)
+         and to_date(sysdate) - to_date(s.join_dt) <= 30;
+    
+      if v_ecnt > 0 then
+      
+        ------------- 
+        select count(*) into v_hcnt from (select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+         where d.emp_code = d1.emp_code
+            and d.emp_type in (1,2)
+           and d.emp_code in
+               (select c.emp_code
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where c.status = 2
+                   and c.spouse_and_depen_name <> 'nill'
+                   and not exists (select *
+                          from TBL_HRM_DEBT_LIABILITY g
+                         where g.seq_id = c.sequence))
+              
+          and d1.direct_manager = headcode
+           and d.status_id = 1
+           and to_date(sysdate) - to_date(d.join_dt) > 15
+           and to_date(sysdate) - to_date(d.join_dt) <= 30
+        
+        union all
+
+        
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+         where d.emp_code = d1.emp_code
+           and d.emp_type in (1,2)
+         and not exists (select *
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where d.emp_code=c.emp_code
+               and c.status in (0)
+                 )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       
+       --and v.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+       
+        union all
+       
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+        
+         where d.emp_code = d1.emp_code
+           and d.emp_type in (1,2)
+        and d.emp_code  in
+               (select c.emp_code
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where c.status = 1
+                
+                   )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       
+       --and v.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+        union all
+        
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1,TBL_HRM_ASSET_AND_LIABILITY_DETAILS k
+        
+         where d.emp_code = d1.emp_code
+         and k.emp_code=d.emp_code
+           and d.emp_type in (1,2)
+        and k.sequence not  in
+               (select m.seq_id
+                  from TBL_HRM_MOVABLE_FORMS m
+                )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       and k.status=0
+      and  k.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+        
+        
+          );
+        --------------     
+        if v_hcnt = 0 then
+        
+          update EMPLOYEE_BLOCK_DTL f
+             set f.remove_date = sysdate, f.block_status = 0
+           where f.block_id = 9997
+             and f.emp_code = headcode
+             and f.block_status = 1;
+          commit;
+        
+        end if;
+      end if;
+      open p_as_outresult for
+        select '111' from dual;
+      return;
+    ELSE
+      -- Return result for the case when insert is not performed
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+      RETURN;
+    END IF;
+    --------------------------------------------------------------------------- 
+  elsif p_flag = 14 then
+    v_spliter_b := splitstr(p_indata, '#');
+    SELECT COUNT(*)
+      INTO V_CNT
+      FROM mana0809.TBL_HRM_DEBT_LIABILITY d
+     WHERE d.seq_id = v_spliter_b(2);
+  
+    IF V_CNT = 0 THEN
+      v_spliter_b1 := splitstr(v_spliter_b(3), '!');
+    
+      for k in 1 .. v_spliter_b1.count loop
+        v_spliter_c := splitstr(v_spliter_b1(k), '*');
+        if (v_spliter_b1(k) is not null) then
+          insert into mana0809.TBL_HRM_DEBT_LIABILITY
+            (seq_id,
+             dependant,
+             name,
+             address,
+             nature,
+             amount,
+             remark,
+             dept_liability)
+          values
+            (v_spliter_b(2),
+             v_spliter_b(1),
+             v_spliter_c(1),
+             v_spliter_c(2),
+             v_spliter_c(3),
+             v_spliter_c(4),
+             v_spliter_c(5),
+             0);
+        end if;
+      end loop;
+      commit;
+    
+      update mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         set z.status = 3
+       where z.sequence = v_spliter_b(2);
+      commit;
+    
+      ----employee work alert remove----
+    
+      select d.emp_code
+        into empcode
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T, employee_master d
+      
+       where d.emp_code = t.emp_code
+            
+         and t.sequence = v_spliter_b(2);
+    
+      select d1.direct_manager
+        into headcode
+        from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+       where d.emp_code = d1.emp_code
+         and d.emp_code = empcode;
+    
+      select count(*)
+        into e_vnt
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+       where c.spouse_and_depen_name <> 'nill'
+         and not exists (select *
+                from TBL_HRM_DEBT_LIABILITY g
+               where g.seq_id = c.sequence)
+         and c.emp_code = empcode;
+    
+      if e_vnt = 0 then
+      
+        update EMPLOYEE_BLOCK_DTL f
+           set f.remove_date = sysdate, f.block_status = 0
+         where f.block_id = 9997
+           and f.emp_code = empcode
+           and f.block_status = 1
+           and to_date(f.block_date) = to_date(sysdate);
+        commit;
+      
+      end if;
+    
+      ------head work alert remove----------
+    
+      select count(*)
+        into v_ecnt
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS a, employee_master s
+       where s.emp_code = a.emp_code
+         and a.sequence = v_spliter_b(2)
+         and to_date(sysdate) - to_date(s.join_dt) <= 30;
+    ---------------
+      if v_ecnt > 0 then
+      
+        select count(*) into v_hcnt from (select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+         where d.emp_code = d1.emp_code
+             and d.emp_type in (1,2) 
+           and d.emp_code in
+               (select c.emp_code
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where c.status = 2
+                   and c.spouse_and_depen_name <> 'nill'
+                   and not exists (select *
+                          from TBL_HRM_DEBT_LIABILITY g
+                         where g.seq_id = c.sequence))
+              
+          and d1.direct_manager = headcode
+           and d.status_id = 1
+           and to_date(sysdate) - to_date(d.join_dt) > 15
+           and to_date(sysdate) - to_date(d.join_dt) <= 30
+        
+        union all
+
+        
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+         where d.emp_code = d1.emp_code
+           and d.emp_type in (1,2)
+         and not exists (select *
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where d.emp_code=c.emp_code
+               and c.status in (0)
+                 )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       
+       --and v.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+       
+        union all
+       
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+        
+         where d.emp_code = d1.emp_code
+           and d.emp_type in (1,2)
+        and d.emp_code  in
+               (select c.emp_code
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where c.status = 1
+                
+                   )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       
+       --and v.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+        union all
+        
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1,TBL_HRM_ASSET_AND_LIABILITY_DETAILS k
+        
+         where d.emp_code = d1.emp_code
+           and d.emp_type in (1,2)
+         and k.emp_code=d.emp_code
+        and k.sequence not  in
+               (select m.seq_id
+                  from TBL_HRM_MOVABLE_FORMS m
+                )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       and k.status=0
+      and  k.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+        
+        
+          );
+        --------------     
+        if v_hcnt = 0 then
+        
+          update EMPLOYEE_BLOCK_DTL f
+             set f.remove_date = sysdate, f.block_status = 0
+           where f.block_id = 9997
+             and f.emp_code = headcode
+             and f.block_status = 1;
+          commit;
+        
+        end if;
+      end if;
+      open p_as_outresult for
+        select '111' from dual;
+      return;
+    ELSE
+      -- Return result for the case when insert is not performed
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+      RETURN;
+    END IF;
+    ---------------------------------------------------------------------------------
+  elsif p_flag = 15 then
+    open p_as_outresult for
+      select
+      
+       f.dependant, f.jewels, f.weight, f.remark
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_ASSET_JEWELLERY             f
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+  
+    --------------------------------------------------------------------------------- 
+  elsif p_flag = 16 then
+    open p_as_outresult for
+      SELECT a.br_id,
+             a.post_id,
+             a.dep_id,
+             t.emp_code,
+             t.emp_name,
+             t.position,
+             t.dependant,
+             t.relation,
+             t.spouse_and_depen_name,
+             j.jewels,
+             j.weight,
+             m.cash_and_bankbalance,
+             i.investment,
+             i.amount,
+             o.other_assets,
+             o.value,
+             v.property_type,
+             v.details,
+             v.total_area,
+             v.type_of_land,
+             v.how_acquired,
+             v.cost_of_acq,
+             v.annual_income,
+             v.present_value,
+             d.nature,
+             d.amount,
+             h.vehicles,
+             h.registration_number,
+             h.year_of_purchase,
+             h.amount_paid
+        FROM TBL_HRM_ASSET_AND_LIABILITY         a,
+             TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_ASSET_JEWELLERY             j,
+             TBL_HRM_MOVABLE_FORMS               m,
+             TBL_HRM_ASSET_INVESTMENT            i,
+             TBL_HRM_OTHER_ASSETS                o,
+             TBL_HRM_IMMOVABLE_FORM              v,
+             TBL_HRM_DEBT_LIABILITY              d,
+             TBL_HRM_ASSET_VEHICLES              h,
+             employee_master                     e
+       WHERE a.seq_id = t.seq_id
+         and a.seq_id = j.seq_id
+         and a.seq_id = m.seq_id
+         and a.seq_id = i.seq_id
+         and a.seq_id = o.seq_id
+         and a.seq_id = v.seq_id
+         and a.seq_id = d.seq_id
+         and a.seq_id = h.seq_id
+         and e.emp_code = t.emp_code
+         and a.br_id = e.branch_id
+         and a.post_id = e.post_id
+         and a.dep_id = e.department_id
+         and t.emp_code = v_spliter_a(1)
+         ;
+  
+    ---------------------------------------------------------------------------------
+  elsif p_flag = 17 then
+    open p_as_outresult for
+    /*select distinct e.emp_code, e.emp_name, p.post_name, m.designation
+                                from employee_master             e,
+                                     TBL_HRM_ASSET_AND_LIABILITY d,
+                                     post_mst                    p,
+                                     designation_master          m
+                               where e.emp_code = d.emp_code
+                                 and e.post_id = p.post_id
+                                 and e.designation_id = m.designation_id
+                                 and e.emp_code = v_spliter_a(1);*/
+    
+    /*select distinct e.emp_code,
+                              e.emp_name,
+                              p.post_name,
+                              m.designation,
+                              DECODE(a.status,
+                                     0,
+                                     'Partially Completed',
+                                     1,
+                                     'Partially Completed',
+                                     2,
+                                     'Partially Completed',
+                                     3,
+                                     'Completed') AS status
+                from employee_master                     e,
+                     TBL_HRM_ASSET_AND_LIABILITY         d,
+                     TBL_HRM_ASSET_AND_LIABILITY_DETAILS a,
+                     post_mst                            p,
+                     designation_master                  m
+               where e.emp_code = d.emp_code
+                 and e.post_id = p.post_id
+                 and e.designation_id = m.designation_id
+                 and a.emp_code = d.emp_code
+                 and e.emp_code = v_spliter_a(1);*/
+    
+      SELECT *
+        FROM (SELECT DISTINCT e.emp_code,
+                              e.emp_name,
+                              p.post_name,
+                              m.designation,
+                              DECODE(a.status,
+                                     0,
+                                     'Partially Completed',
+                                     1,
+                                     'Partially Completed',
+                                     2,
+                                     'Partially Completed',
+                                     3,
+                                     'Completed') AS status
+                FROM employee_master                     e,
+                     TBL_HRM_ASSET_AND_LIABILITY         d,
+                     TBL_HRM_ASSET_AND_LIABILITY_DETAILS a,
+                     post_mst                            p,
+                     designation_master                  m
+               WHERE e.emp_code = d.emp_code
+                 AND e.post_id = p.post_id
+                 AND e.designation_id = m.designation_id
+                 AND a.emp_code = d.emp_code
+                 AND e.emp_code = v_spliter_a(1))
+       WHERE ROWNUM = 1;
+  
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 18 then
+    open p_as_outresult for
+    /*select f.cash_and_bankbalance,
+                                         f.personal_loan,
+                                         f.remark,
+                                         f.categorys,
+                                         f.dependant,
+                                         f.personal_rmrk
+                                  
+                                    from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t, TBL_HRM_MOVABLE_FORMS f
+                                   where t.emp_code = v_spliter_a(1)
+                                     AND t.sequence = f.seq_id;*/
+    
+      SELECT f.dependant,
+             f.cash_and_bankbalance,
+             DECODE(f.personal_loan, 1, 'Yes', 0, 'No') AS personal_loan,
+             f.remark,
+             f.personal_rmrk
+        FROM TBL_HRM_ASSET_AND_LIABILITY_DETAILS t, TBL_HRM_MOVABLE_FORMS f
+       WHERE t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+  
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 19 then
+    open p_as_outresult for
+      select f.dependant, f.investment, f.amount, f.remark
+      
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_ASSET_INVESTMENT            f
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+  
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 20 then
+    open p_as_outresult for
+      select
+      
+       f.dependant, f.other_assets, f.value, f.remark
+      
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t, TBL_HRM_OTHER_ASSETS f
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 21 then
+    open p_as_outresult for
+     
+          select
+       f.dependant,
+       DECODE(f.immovable_form, 0, 'Yes', 1, 'No') AS immovable_form,
+       f.property_type,
+       f.details,
+       s.state_name,
+       d.district_name,
+       f.division,
+       f.thaluk,
+       f.village,
+       f.distinctive_number,
+       f.total_area,
+       f.type_of_land,
+       f.how_acquired,
+       f.name_of_person_from_whom_acq,
+       f.address,
+       f.connection_to_emp,
+       f.cost_of_acq,
+       f.present_value,
+       f.annual_income,
+       f.remark
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_IMMOVABLE_FORM              f,
+             state_master                        s,
+             district_master                     d
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id
+         and d.district_id=f.district_id
+         and s.state_id=f.state_id;
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 22 then
+    open p_as_outresult for
+      select
+      
+       f.dependant,
+       DECODE(f.dept_liability, 0, 'Yes', 1, 'No') AS dept_liability,
+       f.name,
+       f.address,
+       f.nature,
+       f.amount,
+       f.remark
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_DEBT_LIABILITY              f
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+    --------------------------------------------------------------------------
+  
+  elsif p_flag = 23 then
+    open p_as_outresult for
+      select f.dependant,
+             f.vehicles,
+             f.registration_number,
+             f.year_of_purchase,
+             f.amount_paid,
+             f.remark
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_ASSET_VEHICLES              f
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+    -----------------------------------------------------------------------------------
+  elsif p_flag = 24 then
+    select d.dep_head
+      into v_ecnt
+      from mana0809.department_mst d
+     where d.dep_id = 70;
+    if v_ecnt = v_spliter_a(1) then
+      OPEN p_as_outresult FOR
+        SELECT '111' FROM dual;
+      RETURN;
+    else
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+    end if;
+    -----------------------------------------------------------------------------------
+    elsif p_flag = 25 then
+    select count(*)
+      into v_ecnt
+      from mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS e
+     where e.emp_code= v_spliter_a(1) and e.spouse_and_depen_name not in('nill') and e.status in(0);
+     
+    if v_ecnt = 0 then
+      OPEN p_as_outresult FOR
+        SELECT '111' FROM dual;
+      RETURN;
+    else
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+    end if;
+    ---------------------------------------------------------------
+    elsif p_flag = 26 then
+    select count(*)
+      into v_ecnt
+      from mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS e
+     where e.emp_code= v_spliter_a(1)  and e.status  in(1);
+     
+    if v_ecnt = 0 then
+      OPEN p_as_outresult FOR
+        SELECT '111' FROM dual;
+      RETURN;
+    else
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+    end if;
+    -------------------------------------------------------------------
+---------------new crf  136838     --------------------------------------------
+  elsif p_flag = 27 then
+
+        select count(*)
+          into v_ecnt
+          from TBL_HRM_ASSET_AND_LIABILITY_DETAILS e
+         where e.emp_code = v_spliter_a(1)
+           and e.spouse_and_depen_name <> 'nill'
+           and status <> 3;
+
+        if v_ecnt = 0 then
+
+          OPEN p_as_outresult FOR
+            SELECT '111' FROM dual;
+
+        else
+
+          OPEN p_as_outresult FOR
+            SELECT '222' FROM dual;
+
+        end if;
+ elsif p_flag = 28 then
+  /*   
+    open p_as_outresult for
+
+    select spouse_and_depen_name,
+           position,
+           dependant,
+           whether_form_being_filed_by_him_her
+    from tbl_hrm_asset_and_liability_details
+    where emp_code = v_spliter_a(1)
+    and upper(nvl(spouse_and_depen_name,'NILL')) <> 'NILL'
+    order by sequence;*/
+   
+ open p_as_outresult for
+
+    select spouse_and_depen_name,
+           position,
+           dependant,
+           whether_form_being_filed_by_him_her
+    from tbl_hrm_asset_and_liability_details
+    where seq_id =
+    (
+        select seq_id
+        from
+        (
+            select seq_id
+            from tbl_hrm_asset_and_liability
+            where emp_code = v_spliter_a(1)
+            order by enter_date desc
+        )
+        where rownum = 1
+    )
+    and upper(nvl(spouse_and_depen_name,'NILL')) <> 'NILL'
+    order by sequence;
+
+  elsif p_flag = 29 then
+    open p_as_outresult for
+
+      select seq_id
+        from (
+              select seq_id
+                from tbl_hrm_asset_and_liability
+               where emp_code = v_spliter_a(1)
+               order by enter_date desc
+             )
+       where rownum = 1;
+  elsif p_flag = 31 then
+
+    open p_as_outresult for
+
+    select sequence,
+           dependant,
+           spouse_and_depen_name
+    from tbl_hrm_asset_and_liability_details
+    where seq_id = v_spliter_a(1);
+
+ elsif p_flag = 32 then
+
+  open p_as_outresult for
+
+  select dependant,
+         jewels,
+         weight,
+         remark
+    from TBL_HRM_ASSET_JEWELLERY
+   where seq_id in
+         (
+           select sequence
+             from TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+            where seq_id = v_spliter_a(1)
+         );
+  elsif p_flag = 33 then
+
+    open p_as_outresult for
+
+    select dependant,
+           cash_and_bankbalance,
+           personal_loan,
+           remark,
+           personal_rmrk
+    from TBL_HRM_MOVABLE_FORMS
+    where seq_id in
+    (
+        select sequence
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+        where seq_id = v_spliter_a(1)
+    );
+   elsif p_flag = 34 then
+
+  open p_as_outresult for
+
+  select dependant,
+         investment,
+         amount,
+         remark
+  from TBL_HRM_ASSET_INVESTMENT
+  where seq_id in
+  (
+      select sequence
+      from TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+      where seq_id = v_spliter_a(1)
+  );
+  
+ elsif p_flag = 35 then
+
+  open p_as_outresult for
+
+  select dependant,
+         other_assets,
+         value,
+         remark
+  from TBL_HRM_OTHER_ASSETS
+  where seq_id in
+  (
+      select sequence
+      from TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+      where seq_id = v_spliter_a(1)
+  );
+  
+ elsif p_flag = 36 then
+
+  open p_as_outresult for
+
+  select f.dependant,
+         decode(f.immovable_form,0,'Yes',1,'No') immovable_form,
+         f.property_type,
+         f.details,
+         s.state_name,
+         d.district_name,
+         f.division,
+         f.thaluk,
+         f.village,
+         f.distinctive_number,
+         f.total_area,
+         f.type_of_land,
+         f.how_acquired,
+         f.name_of_person_from_whom_acq,
+         f.address,
+         f.connection_to_emp,
+         f.cost_of_acq,
+         f.present_value,
+         f.annual_income,
+         f.remark
+    from TBL_HRM_IMMOVABLE_FORM f,
+         STATE_MASTER s,
+         DISTRICT_MASTER d
+   where f.state_id = s.state_id(+)
+     and f.district_id = d.district_id(+)
+     and f.seq_id in
+         (
+           select sequence
+             from TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+            where seq_id = v_spliter_a(1)
+         );
+         
+   elsif p_flag = 37 then
+
+  open p_as_outresult for
+
+  select dependant,
+         decode(dept_liability,0,'Yes',1,'No') dept_liability,
+         name,
+         address,
+         nature,
+         amount,
+         remark
+  from TBL_HRM_DEBT_LIABILITY
+  where seq_id in
+  (
+      select sequence
+      from TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+      where seq_id = v_spliter_a(1)
+  );
+  
+  elsif p_flag = 38 then
+
+  open p_as_outresult for
+
+  select dependant,
+         vehicles,
+         registration_number,
+         year_of_purchase,
+         amount_paid,
+         remark
+  from TBL_HRM_ASSET_VEHICLES
+  where seq_id in
+  (
+      select sequence
+      from TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+      where seq_id = v_spliter_a(1)
+  );
+
+
+  ----------------------------------------------------------------------
+ 
+  end if;
+exception
+  when others then
+    -- p_errorMsg := SUBSTR(SQLERRM, 1, 150) || '- Error Code :-' || SQLCODE;
+    -- rollback;
+
+    rollback;
+
+    v_ErrID    := seq_hrms_errorid.nextval;
+    p_errormsg := 'Oops..!Something Went Wrong...!' || v_ErrID;
+    v_ErrDesc  := SUBSTR(SQLERRM, 1, 150); -- || v_spliter_a(2);
+    v_ErrDtl   := v_ErrDesc || dbms_utility.format_error_backtrace ||
+                  dbms_utility.format_error_stack ||
+                  dbms_utility.format_call_stack;
+    insert into tbl_hrms_error_dtl
+      (error_id, proc_name, error_description, error_details, tra_dt)
+    values
+      (v_ErrID,
+       'Proc_Hrm_Asset_And_Liability_mvc_new',
+       v_ErrDesc,
+       v_ErrDtl,
+       sysdate);
+    commit;
+end Proc_Hrm_Asset_And_Liability_mvc_new; soo corct it from 2nd page also use the 1st page templete like thet ok now corct the 3nd page ithink contrller is iisue idontknow
