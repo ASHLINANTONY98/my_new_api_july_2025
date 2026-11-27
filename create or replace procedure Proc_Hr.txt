@@ -1,0 +1,1736 @@
+create or replace procedure Proc_Hrm_Asset_And_Liability_mvc_new(p_flag         in number,
+                                                         p_indata       varchar2,
+                                                         p_as_outresult out sys_refcursor,
+                                                         p_errorstat    out number,
+                                                         p_errormsg     out varchar2) as
+
+  v_spliter_a  array;
+  v_spliter_b1 array;
+  v_spliter_d  array;
+  v_spliter_d1 array;
+  v_spliter_c  array;
+  v_spliter_b2 array;
+  v_spliter_b3 array;
+  v_spliter_b4 array;
+  v_spliter_d2 array;
+  v_spliter_d3 array;
+  v_spliter_b  array;
+  cn_v         NUMBER;
+  V_CNT        NUMBER;
+  seq1         number;
+  v_ct         number;
+  v_nc         number;
+  v_curyear    date;
+  v_hcnt       number;
+  headcode     number;
+  v_ecnt       number;
+  e_vnt        number;
+  empcode      number;
+  dept         number;
+  --- v_curyear1 date;
+  V_CNT1 number;
+  
+  v_ErrID             tbl_hrms_error_dtl.error_id%type;
+  v_ErrDtl            tbl_hrms_error_dtl.error_details%type;
+  v_ErrDesc           tbl_hrms_error_dtl.error_description%type;
+
+begin
+  v_spliter_a := splitstr(p_indata, '~');
+
+  select t.fiscal_year into v_curyear from mana0809.FISCAL_YEAR_vw t;
+
+  ---select sysdate into v_curyear from dual;
+
+  if p_flag = 1 then
+    open p_as_outresult for
+    
+      select distinct e.emp_code, e.emp_name, T.DESIGNATION
+        from MANA0809.employee_master e, MANA0809.DESIGNATION_MASTER T
+       where E.DESIGNATION_ID = T.DESIGNATION_ID
+         AND E.STATUS_ID = 1
+         and E.EMP_CODE = v_spliter_a(1);
+    ----------------------------------------------------------------
+  
+  elsif p_flag = 2 then
+  
+    v_spliter_a := splitstr(p_indata, '#');
+    v_spliter_c := splitstr(v_spliter_a(1), '~');
+  
+    seq1 := SEQ_ASSET_LIABILITY.NEXTVAL;
+  
+    SELECT count(*)
+      INTO V_CNT
+      FROM TBL_HRM_ASSET_AND_LIABILITY T
+     WHERE T.EMP_CODE = v_spliter_c(4)
+       AND to_date(t.enter_date) >= to_date(v_curyear);
+  
+    IF (V_CNT = 0) THEN
+      insert into MANA0809.TBL_HRM_ASSET_AND_LIABILITY
+        (SEQ_ID,
+         EMP_CODE,
+         ENTER_DATE,
+         ENTER_BY,
+         IP_ADDRESS,
+         HOST_NAME,
+         BR_ID,
+         POST_ID,
+         DEP_ID,
+         DESIG_ID)
+        select seq1,
+               v_spliter_c(4),
+               sysdate,
+               v_spliter_c(1),
+               v_spliter_c(2),
+               v_spliter_c(3),
+               t.branch_id,
+               t.post_id,
+               t.department_id,
+               T.DESIGNATION_ID
+          from employee_master t
+         where t.emp_code = v_spliter_c(1)
+           and t.status_id = 1;
+    
+      insert into mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+        (seq_id,
+         sequence,
+         emp_name,
+         emp_code,
+         position,
+         DEPENDANT,
+         spouse_and_depen_name,
+         
+         whether_form_being_filed_by_him_her,
+         
+         categorys,
+         status)
+      values
+        (seq1,
+         SEQ_ASSET_LIABILITY_DETAILS.NEXTVAL,
+         v_spliter_c(5),
+         v_spliter_c(4),
+         v_spliter_c(6),
+         'self',
+         v_spliter_c(5),
+         v_spliter_c(7),
+         1,
+         0);
+    
+      insert into mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+        (seq_id,
+         sequence,
+         emp_name,
+         emp_code,
+         position,
+         spouse_and_depen_name,
+         DEPENDANT,
+         
+         whether_form_being_filed_by_him_her,
+         
+         categorys,
+         status)
+      values
+        (seq1,
+         SEQ_ASSET_LIABILITY_DETAILS.NEXTVAL,
+         v_spliter_c(5),
+         v_spliter_c(4),
+         v_spliter_c(9),
+         v_spliter_c(8),
+         'spouse',
+         v_spliter_c(10),
+         
+         2,
+         0);
+    
+      v_spliter_b1 := splitstr(v_spliter_a(2), '!');
+      for k in 1 .. v_spliter_b1.count loop
+      
+        v_spliter_d := splitstr(v_spliter_b1(k), '*');
+      
+        if (v_spliter_b1(k) is not null) then
+        
+          --399399~127.0.0.1~38-7A-0E-6E-87-5A~399399~RESHMA  K R~SR. ASST.~0~GHDDJ~FHDSFS~1~1#1*SFDHG*ADSD*0!1*GHDGSJ*DBSDBM*1!3*EHDJE*GFHEGDUW*1!
+        
+          insert into TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+            (SEQ_ID,
+             sequence,
+             EMP_NAME,
+             EMP_CODE,
+             WHETHER_FORM_BEING_FILED_BY_HIM_HER,
+             DEPENDANT,
+             spouse_and_depen_name,
+             POSITION,
+             RELATION,
+             CATEGORYS,
+             STATUS)
+          values
+            (seq1,
+             SEQ_ASSET_LIABILITY_DETAILS.NEXTVAL,
+             v_spliter_c(5),
+             v_spliter_c(4),
+             v_spliter_d(5),
+             v_spliter_d(1),
+             v_spliter_d(2),
+             v_spliter_d(3),
+             v_spliter_d(4),
+             3,
+             0);
+        
+        end if;
+      
+      end loop;
+    
+      commit;
+    
+      open p_as_outresult for
+      
+        SELECT '111' FROM DUAL;
+    
+    ELSE
+      open p_as_outresult for
+      
+        SELECT '222' FROM DUAL;
+    END IF;
+    ---------------------------------------------------------------------------
+  elsif p_flag = 3 then
+  
+    open p_as_outresult for
+    
+      select '-1' dependant,
+             '----------------------------select-----------------------------' dependant_name
+        from dual
+      
+      UNION ALL
+      
+      select t.dependant,
+             t.dependant || ' - ' || t.Spouse_And_Depen_Name || '-' ||
+             t.sequence as dependant_name
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T
+       where t.status = 0
+         AND t.emp_code = v_spliter_a(1)
+         and t.spouse_and_depen_name <> 'nill';
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 4 then
+    open p_as_outresult for
+    
+      SELECT t.spouse_and_depen_name, t.position
+        FROM TBL_HRM_ASSET_AND_LIABILITY_DETAILS T
+       WHERE t.sequence = v_spliter_a(1)
+         AND t.emp_code = v_spliter_a(2);
+    ------------------------------------------------------------------------
+     ---added on 21-11-2026------------------------------------------------
+  elsif p_flag = 5 then
+    v_spliter_a := splitstr(p_indata, '#');
+    v_spliter_c := splitstr(v_spliter_a(1), '~');
+  
+    -- seq1 := SEQ_ASSET_LIABILITY.NEXTVAL;
+  
+    select count(*)
+      into v_ct
+      from TBL_HRM_MOVABLE_FORMS t
+     where t.seq_id = v_spliter_c(6);
+  
+    if (v_ct = 0) then
+      insert into MANA0809.TBL_HRM_MOVABLE_FORMS
+        (SEQ_ID,
+         CASH_AND_BANKBALANCE,
+         PERSONAL_LOAN,
+         REMARK,
+         DEPENDANT,
+         PERSONAL_RMRK,
+         enter_by,
+         enter_date)
+      values
+        (v_spliter_c(6),
+         v_spliter_c(1),
+         v_spliter_c(3),
+         v_spliter_c(2),
+         v_spliter_c(5),
+         v_spliter_c(4),
+         v_spliter_c(7),
+         sysdate);
+    
+      if (v_spliter_a(2) IS NOT NULL) then
+      v_spliter_b1 := splitstr(v_spliter_a(2), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          declare
+            v_issuer varchar2(200);
+            v_units  varchar2(50);
+          begin
+            if v_spliter_d.count >= 4 then v_issuer := nullif(trim(v_spliter_d(4)), '-'); end if;
+            if v_spliter_d.count >= 5 then v_units  := nullif(trim(v_spliter_d(5)), '-'); end if;
+
+            insert into TBL_HRM_ASSET_INVESTMENT
+              (SEQ_ID, INVESTMENT, AMOUNT, REMARK, DEPENDANT, ISSUER, UNITS_QTY)
+            values
+              (v_spliter_c(6), v_spliter_d(1), v_spliter_d(2), v_spliter_d(3), v_spliter_c(5),
+               v_issuer, v_units);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------------------------- vehicles
+    if (v_spliter_a(3) IS NOT NULL) then
+      v_spliter_b2 := splitstr(v_spliter_a(3), '!');
+      for k in 1 .. v_spliter_b2.count loop
+        if (v_spliter_b2(k) is not null) then
+          v_spliter_d1 := splitstr(v_spliter_b2(k), '*');
+          declare
+            v_mode   varchar2(30);
+            v_lender varchar2(200);
+            v_loan   number;
+            v_out    number;
+            v_emi    number;
+            v_co     varchar2(200);
+          begin
+            if v_spliter_d1.count >= 6  then v_mode   := nullif(trim(v_spliter_d1(6)),  '-'); end if;
+            if v_spliter_d1.count >= 7  then v_lender := nullif(trim(v_spliter_d1(7)),  '-'); end if;
+            if v_spliter_d1.count >= 8  then v_loan   := to_number(nullif(trim(v_spliter_d1(8)),  '-')); end if;
+            if v_spliter_d1.count >= 9  then v_out    := to_number(nullif(trim(v_spliter_d1(9)),  '-')); end if;
+            if v_spliter_d1.count >= 10 then v_emi    := to_number(nullif(trim(v_spliter_d1(10)), '-')); end if;
+            if v_spliter_d1.count >= 11 then v_co     := nullif(trim(v_spliter_d1(11)), '-'); end if;
+
+            insert into TBL_HRM_ASSET_VEHICLES
+              (SEQ_ID, SEQUENCE, VEHICLES, REGISTRATION_NUMBER, YEAR_OF_PURCHASE, AMOUNT_PAID, REMARK, DEPENDANT,
+               PAYMENT_MODE, LENDER_NAME, LOAN_AMOUNT, OUTSTANDING_AMOUNT, EMI_AMOUNT, CO_APPLICANT)
+            values
+              (v_spliter_c(6), SEQ_ASSET_LIABILITY_DETAILS.NEXTVAL, v_spliter_d1(1), v_spliter_d1(2),
+               v_spliter_d1(3), v_spliter_d1(4), v_spliter_d1(5), v_spliter_c(5),
+               v_mode, v_lender, v_loan, v_out, v_emi, v_co);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------------------------- jewellery
+    if (v_spliter_a(4) IS NOT NULL) then
+      v_spliter_b3 := splitstr(v_spliter_a(4), '!');
+      for k in 1 .. v_spliter_b3.count loop
+        if (v_spliter_b3(k) is not null) then
+          v_spliter_d2 := splitstr(v_spliter_b3(k), '*');
+          declare
+            v_value  number;
+            v_source varchar2(200);
+          begin
+            if v_spliter_d2.count >= 4 then v_value  := to_number(nullif(trim(v_spliter_d2(4)), '-')); end if;
+            if v_spliter_d2.count >= 5 then v_source := nullif(trim(v_spliter_d2(5)), '-'); end if;
+
+            insert into TBL_HRM_ASSET_JEWELLERY
+              (SEQ_ID, JEWELS, WEIGHT, REMARK, DEPENDANT, APPROX_VALUE, SOURCE_OF_FUNDS)
+            values
+              (v_spliter_c(6), v_spliter_d2(1), v_spliter_d2(2), v_spliter_d2(3), v_spliter_c(5),
+               v_value, v_source);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------------------------- other assets
+    if (v_spliter_a(5) IS NOT NULL) then
+      v_spliter_b4 := splitstr(v_spliter_a(5), '!');
+      for k in 1 .. v_spliter_b4.count loop
+        if (v_spliter_b4(k) is not null) then
+          v_spliter_d3 := splitstr(v_spliter_b4(k), '*');
+          declare
+            v_source varchar2(200);
+          begin
+            if v_spliter_d3.count >= 4 then v_source := nullif(trim(v_spliter_d3(4)), '-'); end if;
+
+            insert into TBL_HRM_OTHER_ASSETS
+              (SEQ_ID, OTHER_ASSETS, VALUE, REMARK, DEPENDANT, SOURCE_OF_FUNDS)
+            values
+              (v_spliter_c(6), v_spliter_d3(1), v_spliter_d3(2), v_spliter_d3(3), v_spliter_c(5),
+               v_source);
+          end;
+        end if;
+      end loop;
+    end if;
+
+    ------------------------------------------- NEW: bank / deposit accounts (Q2)
+    if v_spliter_a.count >= 6 and v_spliter_a(6) is not null then
+      v_spliter_b1 := splitstr(v_spliter_a(6), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_BANK_DEPOSIT
+            (SEQ_ID, DEPENDANT, BANK_NAME, BRANCH, ACCOUNT_TYPE, BALANCE)
+          values
+            (v_spliter_c(6), v_spliter_c(5), v_spliter_d(1), v_spliter_d(2), v_spliter_d(3),
+             to_number(v_spliter_d(4)));
+        end if;
+      end loop;
+    end if;
+
+    ---------------------------------------------- NEW: insurance / PPF (Q6)
+    if v_spliter_a.count >= 7 and v_spliter_a(7) is not null then
+      v_spliter_b1 := splitstr(v_spliter_a(7), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_INSURANCE_PPF
+            (SEQ_ID, DEPENDANT, INSTRUMENT_TYPE, PROVIDER, POLICY_NO, SUM_ASSURED)
+          values
+            (v_spliter_c(6), v_spliter_c(5), v_spliter_d(1), v_spliter_d(2), v_spliter_d(3),
+             to_number(v_spliter_d(4)));
+        end if;
+      end loop;
+    end if;
+
+    ------------------------------------- NEW: virtual digital assets (Q8)
+    if v_spliter_a.count >= 8 and v_spliter_a(8) is not null then
+      v_spliter_b1 := splitstr(v_spliter_a(8), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_d := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_VDA
+            (SEQ_ID, DEPENDANT, ASSET_TYPE, QUANTITY, APPROX_VALUE)
+          values
+            (v_spliter_c(6), v_spliter_c(5), v_spliter_d(1), v_spliter_d(2),
+             to_number(v_spliter_d(3)));
+        end if;
+      end loop;
+    end if;
+
+    commit;
+    
+      update TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         set z.status = 1
+       where z.sequence = v_spliter_c(6);
+    
+      commit;
+    
+      open p_as_outresult for
+      
+        select '111' from dual;
+    
+    else
+      open p_as_outresult for
+      
+        select '222' from dual;
+    
+    end if;
+    --------------------end 21-11-2026-----------------------------------------------
+  
+  elsif p_flag = 6 then
+  
+    open p_as_outresult for
+    
+      select -1 sequence,
+             '----------------------------select-----------------------------' dependant_name
+        from dual
+      
+      UNION ALL
+      
+      select t.sequence,
+             t.dependant || '-' || t.Spouse_And_Depen_Name || '-' ||
+             t.sequence as dependant_name
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T
+       where t.status = 1
+         AND t.emp_code = v_spliter_a(1)
+         and t.spouse_and_depen_name <> 'nill';
+    -----------------------------------------------------------------------------
+  elsif p_flag = 7 then
+    open p_as_outresult for
+    
+      select -1 state_id,
+             '---------------------------select----------------------------' state_name
+        from dual
+      
+      UNION ALL
+      
+      select s.state_id, s.state_name
+        from mana0809.state_master s;
+  
+    ---------------------------------------------------------------------------------  
+  elsif p_flag = 8 then
+    open p_as_outresult for
+    
+      select -1 district_id,
+             '---------------------------select----------------------------' district_name
+        from dual
+      
+      UNION ALL
+      
+      select d.district_id, d.district_name
+        from mana0809.DISTRICT_MASTER d
+       where d.state_id = v_spliter_a(1);
+  
+    --------------------------------------------------------------------------
+ ----------------------23-11-26 chnage------------------------------------
+ elsif p_flag = 9 then
+    v_spliter_b := splitstr(p_indata, '#');
+
+    SELECT COUNT(*)
+      INTO V_CNT
+      FROM mana0809.TBL_HRM_IMMOVABLE_FORM m
+     WHERE m.seq_id = v_spliter_b(2);
+
+    IF V_CNT = 0 THEN
+
+      ------------------------------------------------------------ property rows
+      v_spliter_b1 := splitstr(v_spliter_b(3), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_c := splitstr(v_spliter_b1(k), '*');
+          declare
+            v_div  varchar2(100);
+            v_thal varchar2(100);
+            v_vil  varchar2(100);
+            v_dno  varchar2(100);
+            v_area varchar2(50);
+            v_src  varchar2(300);
+          begin
+            v_div  := nullif(trim(v_spliter_c(5)), '-');
+            v_thal := nullif(trim(v_spliter_c(6)), '-');
+            v_vil  := nullif(trim(v_spliter_c(7)), '-');
+            v_dno  := nullif(trim(v_spliter_c(8)), '-');
+            v_area := nullif(trim(v_spliter_c(9)), '-');
+            if v_spliter_c.count >= 19 then v_src := nullif(trim(v_spliter_c(19)), '-'); end if;
+
+            insert into mana0809.TBL_HRM_IMMOVABLE_FORM
+              (SEQ_ID, DEPENDANT, PROPERTY_TYPE, DETAILS, STATE_ID, DISTRICT_ID, DIVISION, THALUK, VILLAGE,
+               DISTINCTIVE_NUMBER, TOTAL_AREA, TYPE_OF_LAND, HOW_ACQUIRED, NAME_OF_PERSON_FROM_WHOM_ACQ,
+               ADDRESS, CONNECTION_TO_EMP, COST_OF_ACQ, PRESENT_VALUE, ANNUAL_INCOME, REMARK, immovable_form,
+               SOURCE_OF_FUNDS)
+            values
+              (v_spliter_b(2), v_spliter_b(1), v_spliter_c(1), v_spliter_c(2), v_spliter_c(3), v_spliter_c(4),
+               v_div, v_thal, v_vil, v_dno, v_area, v_spliter_c(10), v_spliter_c(11), v_spliter_c(12),
+               v_spliter_c(13), v_spliter_c(14), v_spliter_c(15), v_spliter_c(16), v_spliter_c(17), v_spliter_c(18), 0,
+               v_src);
+          end;
+        end if;
+      end loop;
+
+      ------------------------------------------------------------ NEW: recent acquisitions (Q9)
+      if v_spliter_b.count >= 4 and v_spliter_b(4) is not null and v_spliter_b(4) <> '-' then
+        v_spliter_b1 := splitstr(v_spliter_b(4), '!');
+        for k in 1 .. v_spliter_b1.count loop
+          if (v_spliter_b1(k) is not null) then
+            v_spliter_c := splitstr(v_spliter_b1(k), '*');
+            insert into TBL_HRM_ASSET_RECENT_ACQ
+              (SEQ_ID, DEPENDANT, DESCRIPTION, PURCHASE_DATE, VALUE, SOURCE_OF_FUNDS, FINANCING_DETAILS)
+            values
+              (v_spliter_b(2), v_spliter_b(1), v_spliter_c(1), to_date(v_spliter_c(2), 'DD/MM/YYYY'),
+               to_number(v_spliter_c(3)), v_spliter_c(4), nullif(trim(v_spliter_c(5)), '-'));
+          end if;
+        end loop;
+      end if;
+
+      commit;
+
+      update mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         set z.status = 2
+       where z.sequence = v_spliter_b(2);
+      commit;
+
+      open p_as_outresult for select '111' from dual;
+      return;
+    ELSE
+      OPEN p_as_outresult FOR SELECT '222' FROM dual;
+      RETURN;
+    END IF;
+
+  ---------------------------------------------------------------------------------
+  elsif p_flag = 10 then
+    SELECT COUNT(*)
+      INTO V_CNT
+      FROM mana0809.TBL_HRM_IMMOVABLE_FORM m
+     WHERE m.seq_id = v_spliter_a(2);
+
+    IF V_CNT = 0 THEN
+      INSERT INTO mana0809.TBL_HRM_IMMOVABLE_FORM
+        (seq_id, dependant, immovable_form)
+      VALUES
+        (v_spliter_a(2), v_spliter_a(1), 1);
+
+      ------------------------------------------------------------ NEW: recent acquisitions (Q9)
+      if v_spliter_a.count >= 3 and v_spliter_a(3) is not null and v_spliter_a(3) <> '-' then
+        v_spliter_b1 := splitstr(v_spliter_a(3), '!');
+        for k in 1 .. v_spliter_b1.count loop
+          if (v_spliter_b1(k) is not null) then
+            v_spliter_c := splitstr(v_spliter_b1(k), '*');
+            insert into TBL_HRM_ASSET_RECENT_ACQ
+              (SEQ_ID, DEPENDANT, DESCRIPTION, PURCHASE_DATE, VALUE, SOURCE_OF_FUNDS, FINANCING_DETAILS)
+            values
+              (v_spliter_a(2), v_spliter_a(1), v_spliter_c(1), to_date(v_spliter_c(2), 'DD/MM/YYYY'),
+               to_number(v_spliter_c(3)), v_spliter_c(4), nullif(trim(v_spliter_c(5)), '-'));
+          end if;
+        end loop;
+      end if;
+      COMMIT;
+
+      UPDATE mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         SET z.status = 2
+       WHERE z.sequence = v_spliter_a(2);
+      COMMIT;
+
+      OPEN p_as_outresult FOR SELECT '111' FROM dual;
+      RETURN;
+    ELSE
+      OPEN p_as_outresult FOR SELECT '222' FROM dual;
+      RETURN;
+    END IF;
+ ------------------------end----------------------------------------------
+  elsif p_flag = 11 then
+  
+    select count(*)
+      into cn_v
+      from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T
+     where t.status = 0
+       AND t.emp_code = v_spliter_a(1)
+       and t.spouse_and_depen_name <> 'nill';
+  
+    open p_as_outresult for
+    
+      select cn_v from dual;
+  
+    ------------------------------------------------------------------------
+  
+  elsif p_flag = 12 then
+  
+    open p_as_outresult for
+    
+      select -1 sequence,
+             '----------------------------select-----------------------------' dependant_name
+        from dual
+      
+      UNION ALL
+      
+      select t.sequence,
+             t.dependant || '-' || t.Spouse_And_Depen_Name || '-' ||
+             t.sequence as dependant_name
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T
+       where t.status = 2
+         AND t.emp_code = v_spliter_a(1)
+         and t.spouse_and_depen_name <> 'nill';
+    -----------------------------------------------------------------------------
+    --------------------------------------------------------------------------------- 
+  elsif p_flag = 13 then
+  
+    SELECT COUNT(*)
+      INTO V_CNT
+      FROM mana0809.TBL_HRM_DEBT_LIABILITY d
+     WHERE d.seq_id = v_spliter_a(2);
+    IF V_CNT = 0 THEN
+      insert into mana0809.TBL_HRM_DEBT_LIABILITY
+        (seq_id, dependant, dept_liability)
+      values
+        (v_spliter_a(2), v_spliter_a(1), 1);
+      commit;
+    
+      update mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         set z.status = 3
+       where z.sequence = v_spliter_a(2);
+      commit;
+    
+      ----employee work alert remove----
+    
+      select d.emp_code
+        into empcode
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T, employee_master d
+      
+       where d.emp_code = t.emp_code
+            
+         and t.sequence = v_spliter_a(2);
+    
+      select d1.direct_manager
+        into headcode
+        from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+       where d.emp_code = d1.emp_code
+         and d.emp_code = empcode;
+    
+      select count(*)
+        into e_vnt
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+       where c.spouse_and_depen_name <> 'nill'
+         and not exists (select *
+                from TBL_HRM_DEBT_LIABILITY g
+               where g.seq_id = c.sequence)
+         and c.emp_code = empcode;
+    
+      if e_vnt = 0 then
+      
+        update EMPLOYEE_BLOCK_DTL f
+           set f.remove_date = sysdate, f.block_status = 0
+         where f.block_id = 9997
+           and f.emp_code = empcode
+           and f.block_status = 1
+              /*and f.block_date=sysdate;*/
+           and to_date(f.block_date) = to_date(sysdate);
+        commit;
+      
+      end if;
+    
+      ------head work alert remove----------
+    
+      select count(*)
+        into v_ecnt
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS a, employee_master s
+       where s.emp_code = a.emp_code
+         and a.sequence = v_spliter_a(2)
+         and to_date(sysdate) - to_date(s.join_dt) <= 30;
+    
+      if v_ecnt > 0 then
+      
+        ------------- 
+        select count(*) into v_hcnt from (select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+         where d.emp_code = d1.emp_code
+            and d.emp_type in (1,2)
+           and d.emp_code in
+               (select c.emp_code
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where c.status = 2
+                   and c.spouse_and_depen_name <> 'nill'
+                   and not exists (select *
+                          from TBL_HRM_DEBT_LIABILITY g
+                         where g.seq_id = c.sequence))
+              
+          and d1.direct_manager = headcode
+           and d.status_id = 1
+           and to_date(sysdate) - to_date(d.join_dt) > 15
+           and to_date(sysdate) - to_date(d.join_dt) <= 30
+        
+        union all
+
+        
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+         where d.emp_code = d1.emp_code
+           and d.emp_type in (1,2)
+         and not exists (select *
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where d.emp_code=c.emp_code
+               and c.status in (0)
+                 )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       
+       --and v.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+       
+        union all
+       
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+        
+         where d.emp_code = d1.emp_code
+           and d.emp_type in (1,2)
+        and d.emp_code  in
+               (select c.emp_code
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where c.status = 1
+                
+                   )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       
+       --and v.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+        union all
+        
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1,TBL_HRM_ASSET_AND_LIABILITY_DETAILS k
+        
+         where d.emp_code = d1.emp_code
+         and k.emp_code=d.emp_code
+           and d.emp_type in (1,2)
+        and k.sequence not  in
+               (select m.seq_id
+                  from TBL_HRM_MOVABLE_FORMS m
+                )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       and k.status=0
+      and  k.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+        
+        
+          );
+        --------------     
+        if v_hcnt = 0 then
+        
+          update EMPLOYEE_BLOCK_DTL f
+             set f.remove_date = sysdate, f.block_status = 0
+           where f.block_id = 9997
+             and f.emp_code = headcode
+             and f.block_status = 1;
+          commit;
+        
+        end if;
+      end if;
+      open p_as_outresult for
+        select '111' from dual;
+      return;
+    ELSE
+      -- Return result for the case when insert is not performed
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+      RETURN;
+    END IF;
+    --------------------------------------------------------------------------- 
+  elsif p_flag = 14 then
+    v_spliter_b := splitstr(p_indata, '#');
+    SELECT COUNT(*)
+      INTO V_CNT
+      FROM mana0809.TBL_HRM_DEBT_LIABILITY d
+     WHERE d.seq_id = v_spliter_b(2);
+  
+    IF V_CNT = 0 THEN
+      v_spliter_b1 := splitstr(v_spliter_b(3), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_c := splitstr(v_spliter_b1(k), '*');
+          declare
+            v_src   varchar2(1) := 'I';
+            v_ltype varchar2(100);
+            v_out   number;
+            v_emi   number;
+            v_rel   varchar2(100);
+            v_pur   varchar2(300);
+          begin
+            -- the old page sent 5 fields; the new page sends 11 (blank = '-')
+            if v_spliter_c.count >= 11 then
+              v_src   := nvl(nullif(trim(v_spliter_c(6)), '-'), 'I');
+              v_ltype := nullif(trim(v_spliter_c(7)), '-');
+              v_out   := to_number(nullif(trim(v_spliter_c(8)), '-'));
+              v_emi   := to_number(nullif(trim(v_spliter_c(9)), '-'));
+              v_rel   := nullif(trim(v_spliter_c(10)), '-');
+              v_pur   := nullif(trim(v_spliter_c(11)), '-');
+            end if;
+
+            insert into mana0809.TBL_HRM_DEBT_LIABILITY
+              (seq_id, dependant, name, address, nature, amount, remark, dept_liability,
+               loan_source, loan_type, outstanding_amount, emi_amount, relationship, purpose)
+            values
+              (v_spliter_b(2), v_spliter_b(1), v_spliter_c(1), v_spliter_c(2), v_spliter_c(3),
+               v_spliter_c(4), v_spliter_c(5), 0,
+               v_src, v_ltype, v_out, v_emi, v_rel, v_pur);
+          end;
+        end if;
+      end loop;
+      commit;
+    
+      update mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS z
+         set z.status = 3
+       where z.sequence = v_spliter_b(2);
+      commit;
+    
+      ----employee work alert remove----
+    
+      select d.emp_code
+        into empcode
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS T, employee_master d
+      
+       where d.emp_code = t.emp_code
+            
+         and t.sequence = v_spliter_b(2);
+    
+      select d1.direct_manager
+        into headcode
+        from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+       where d.emp_code = d1.emp_code
+         and d.emp_code = empcode;
+    
+      select count(*)
+        into e_vnt
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+       where c.spouse_and_depen_name <> 'nill'
+         and not exists (select *
+                from TBL_HRM_DEBT_LIABILITY g
+               where g.seq_id = c.sequence)
+         and c.emp_code = empcode;
+    
+      if e_vnt = 0 then
+      
+        update EMPLOYEE_BLOCK_DTL f
+           set f.remove_date = sysdate, f.block_status = 0
+         where f.block_id = 9997
+           and f.emp_code = empcode
+           and f.block_status = 1
+           and to_date(f.block_date) = to_date(sysdate);
+        commit;
+      
+      end if;
+    
+      ------head work alert remove----------
+    
+      select count(*)
+        into v_ecnt
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS a, employee_master s
+       where s.emp_code = a.emp_code
+         and a.sequence = v_spliter_b(2)
+         and to_date(sysdate) - to_date(s.join_dt) <= 30;
+    ---------------
+      if v_ecnt > 0 then
+      
+        select count(*) into v_hcnt from (select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+         where d.emp_code = d1.emp_code
+             and d.emp_type in (1,2) 
+           and d.emp_code in
+               (select c.emp_code
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where c.status = 2
+                   and c.spouse_and_depen_name <> 'nill'
+                   and not exists (select *
+                          from TBL_HRM_DEBT_LIABILITY g
+                         where g.seq_id = c.sequence))
+              
+          and d1.direct_manager = headcode
+           and d.status_id = 1
+           and to_date(sysdate) - to_date(d.join_dt) > 15
+           and to_date(sysdate) - to_date(d.join_dt) <= 30
+        
+        union all
+
+        
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+         where d.emp_code = d1.emp_code
+           and d.emp_type in (1,2)
+         and not exists (select *
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where d.emp_code=c.emp_code
+               and c.status in (0)
+                 )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       
+       --and v.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+       
+        union all
+       
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1
+        
+         where d.emp_code = d1.emp_code
+           and d.emp_type in (1,2)
+        and d.emp_code  in
+               (select c.emp_code
+                  from TBL_HRM_ASSET_AND_LIABILITY_DETAILS c
+                 where c.status = 1
+                
+                   )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       
+       --and v.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+        union all
+        
+        select d.emp_code
+          from employee_master d, mana0809.TBL_EMP_STAFFWELFARE_DATA_ALL d1,TBL_HRM_ASSET_AND_LIABILITY_DETAILS k
+        
+         where d.emp_code = d1.emp_code
+           and d.emp_type in (1,2)
+         and k.emp_code=d.emp_code
+        and k.sequence not  in
+               (select m.seq_id
+                  from TBL_HRM_MOVABLE_FORMS m
+                )
+       and d1.direct_manager = headcode
+       and d.status_id = 1
+       and k.status=0
+      and  k.spouse_and_depen_name <>'nill'
+       and to_date(sysdate) - to_date(d.join_dt) > 15
+        and to_date(sysdate) - to_date(d.join_dt) <= 30
+        
+        
+          );
+        --------------     
+        if v_hcnt = 0 then
+        
+          update EMPLOYEE_BLOCK_DTL f
+             set f.remove_date = sysdate, f.block_status = 0
+           where f.block_id = 9997
+             and f.emp_code = headcode
+             and f.block_status = 1;
+          commit;
+        
+        end if;
+      end if;
+      open p_as_outresult for
+        select '111' from dual;
+      return;
+    ELSE
+      -- Return result for the case when insert is not performed
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+      RETURN;
+    END IF;
+    ---------------------------------------------------------------------------------
+  elsif p_flag = 15 then
+    open p_as_outresult for
+      select
+      
+       f.dependant, f.jewels, f.weight, f.remark
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_ASSET_JEWELLERY             f
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+  
+    --------------------------------------------------------------------------------- 
+  elsif p_flag = 16 then
+    open p_as_outresult for
+      SELECT a.br_id,
+             a.post_id,
+             a.dep_id,
+             t.emp_code,
+             t.emp_name,
+             t.position,
+             t.dependant,
+             t.relation,
+             t.spouse_and_depen_name,
+             j.jewels,
+             j.weight,
+             m.cash_and_bankbalance,
+             i.investment,
+             i.amount,
+             o.other_assets,
+             o.value,
+             v.property_type,
+             v.details,
+             v.total_area,
+             v.type_of_land,
+             v.how_acquired,
+             v.cost_of_acq,
+             v.annual_income,
+             v.present_value,
+             d.nature,
+             d.amount,
+             h.vehicles,
+             h.registration_number,
+             h.year_of_purchase,
+             h.amount_paid
+        FROM TBL_HRM_ASSET_AND_LIABILITY         a,
+             TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_ASSET_JEWELLERY             j,
+             TBL_HRM_MOVABLE_FORMS               m,
+             TBL_HRM_ASSET_INVESTMENT            i,
+             TBL_HRM_OTHER_ASSETS                o,
+             TBL_HRM_IMMOVABLE_FORM              v,
+             TBL_HRM_DEBT_LIABILITY              d,
+             TBL_HRM_ASSET_VEHICLES              h,
+             employee_master                     e
+       WHERE a.seq_id = t.seq_id
+         and a.seq_id = j.seq_id
+         and a.seq_id = m.seq_id
+         and a.seq_id = i.seq_id
+         and a.seq_id = o.seq_id
+         and a.seq_id = v.seq_id
+         and a.seq_id = d.seq_id
+         and a.seq_id = h.seq_id
+         and e.emp_code = t.emp_code
+         and a.br_id = e.branch_id
+         and a.post_id = e.post_id
+         and a.dep_id = e.department_id
+         and t.emp_code = v_spliter_a(1)
+         ;
+  
+    ---------------------------------------------------------------------------------
+  elsif p_flag = 17 then
+    open p_as_outresult for
+    /*select distinct e.emp_code, e.emp_name, p.post_name, m.designation
+                                from employee_master             e,
+                                     TBL_HRM_ASSET_AND_LIABILITY d,
+                                     post_mst                    p,
+                                     designation_master          m
+                               where e.emp_code = d.emp_code
+                                 and e.post_id = p.post_id
+                                 and e.designation_id = m.designation_id
+                                 and e.emp_code = v_spliter_a(1);*/
+    
+    /*select distinct e.emp_code,
+                              e.emp_name,
+                              p.post_name,
+                              m.designation,
+                              DECODE(a.status,
+                                     0,
+                                     'Partially Completed',
+                                     1,
+                                     'Partially Completed',
+                                     2,
+                                     'Partially Completed',
+                                     3,
+                                     'Completed') AS status
+                from employee_master                     e,
+                     TBL_HRM_ASSET_AND_LIABILITY         d,
+                     TBL_HRM_ASSET_AND_LIABILITY_DETAILS a,
+                     post_mst                            p,
+                     designation_master                  m
+               where e.emp_code = d.emp_code
+                 and e.post_id = p.post_id
+                 and e.designation_id = m.designation_id
+                 and a.emp_code = d.emp_code
+                 and e.emp_code = v_spliter_a(1);*/
+    
+      SELECT *
+        FROM (SELECT DISTINCT e.emp_code,
+                              e.emp_name,
+                              p.post_name,
+                              m.designation,
+                              DECODE(a.status,
+                                     0,
+                                     'Partially Completed',
+                                     1,
+                                     'Partially Completed',
+                                     2,
+                                     'Partially Completed',
+                                     3,
+                                     'Completed') AS status
+                FROM employee_master                     e,
+                     TBL_HRM_ASSET_AND_LIABILITY         d,
+                     TBL_HRM_ASSET_AND_LIABILITY_DETAILS a,
+                     post_mst                            p,
+                     designation_master                  m
+               WHERE e.emp_code = d.emp_code
+                 AND e.post_id = p.post_id
+                 AND e.designation_id = m.designation_id
+                 AND a.emp_code = d.emp_code
+                 AND e.emp_code = v_spliter_a(1))
+       WHERE ROWNUM = 1;
+  
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 18 then
+    open p_as_outresult for
+    /*select f.cash_and_bankbalance,
+                                         f.personal_loan,
+                                         f.remark,
+                                         f.categorys,
+                                         f.dependant,
+                                         f.personal_rmrk
+                                  
+                                    from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t, TBL_HRM_MOVABLE_FORMS f
+                                   where t.emp_code = v_spliter_a(1)
+                                     AND t.sequence = f.seq_id;*/
+    
+      SELECT f.dependant,
+             f.cash_and_bankbalance,
+             DECODE(f.personal_loan, 1, 'Yes', 0, 'No') AS personal_loan,
+             f.remark,
+             f.personal_rmrk
+        FROM TBL_HRM_ASSET_AND_LIABILITY_DETAILS t, TBL_HRM_MOVABLE_FORMS f
+       WHERE t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+  
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 19 then
+    open p_as_outresult for
+      select f.dependant, f.investment, f.amount, f.remark
+      
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_ASSET_INVESTMENT            f
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+  
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 20 then
+    open p_as_outresult for
+      select
+      
+       f.dependant, f.other_assets, f.value, f.remark
+      
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t, TBL_HRM_OTHER_ASSETS f
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 21 then
+    open p_as_outresult for
+     
+          select
+       f.dependant,
+       DECODE(f.immovable_form, 0, 'Yes', 1, 'No') AS immovable_form,
+       f.property_type,
+       f.details,
+       s.state_name,
+       d.district_name,
+       f.division,
+       f.thaluk,
+       f.village,
+       f.distinctive_number,
+       f.total_area,
+       f.type_of_land,
+       f.how_acquired,
+       f.name_of_person_from_whom_acq,
+       f.address,
+       f.connection_to_emp,
+       f.cost_of_acq,
+       f.present_value,
+       f.annual_income,
+       f.remark
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_IMMOVABLE_FORM              f,
+             state_master                        s,
+             district_master                     d
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id
+         and d.district_id=f.district_id
+         and s.state_id=f.state_id;
+    ---------------------------------------------------------------------------------
+  
+  elsif p_flag = 22 then
+    open p_as_outresult for
+      select
+      
+       f.dependant,
+       DECODE(f.dept_liability, 0, 'Yes', 1, 'No') AS dept_liability,
+       f.name,
+       f.address,
+       f.nature,
+       f.amount,
+       f.remark
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_DEBT_LIABILITY              f
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+    --------------------------------------------------------------------------
+  
+  elsif p_flag = 23 then
+    open p_as_outresult for
+      select f.dependant,
+             f.vehicles,
+             f.registration_number,
+             f.year_of_purchase,
+             f.amount_paid,
+             f.remark
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS t,
+             TBL_HRM_ASSET_VEHICLES              f
+       where t.emp_code = v_spliter_a(1)
+         AND t.sequence = f.seq_id;
+    -----------------------------------------------------------------------------------
+  elsif p_flag = 24 then
+    select d.dep_head
+      into v_ecnt
+      from mana0809.department_mst d
+     where d.dep_id = 70;
+    if v_ecnt = v_spliter_a(1) then
+      OPEN p_as_outresult FOR
+        SELECT '111' FROM dual;
+      RETURN;
+    else
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+    end if;
+    -----------------------------------------------------------------------------------
+    elsif p_flag = 25 then
+    select count(*)
+      into v_ecnt
+      from mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS e
+     where e.emp_code= v_spliter_a(1) and e.spouse_and_depen_name not in('nill') and e.status in(0);
+     
+    if v_ecnt = 0 then
+      OPEN p_as_outresult FOR
+        SELECT '111' FROM dual;
+      RETURN;
+    else
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+    end if;
+    ---------------------------------------------------------------
+    elsif p_flag = 26 then
+    select count(*)
+      into v_ecnt
+      from mana0809.TBL_HRM_ASSET_AND_LIABILITY_DETAILS e
+     where e.emp_code= v_spliter_a(1)  and e.status  in(1);
+     
+    if v_ecnt = 0 then
+      OPEN p_as_outresult FOR
+        SELECT '111' FROM dual;
+      RETURN;
+    else
+      OPEN p_as_outresult FOR
+        SELECT '222' FROM dual;
+    end if;
+    -------------------------------------------------------------------
+---------------new crf  136838     --------------------------------------------
+  elsif p_flag = 27 then
+
+        select count(*)
+          into v_ecnt
+          from TBL_HRM_ASSET_AND_LIABILITY_DETAILS e
+         where e.emp_code = v_spliter_a(1)
+           and e.spouse_and_depen_name <> 'nill'
+           and status <> 3;
+
+        if v_ecnt = 0 then
+
+          OPEN p_as_outresult FOR
+            SELECT '111' FROM dual;
+
+        else
+
+          OPEN p_as_outresult FOR
+            SELECT '222' FROM dual;
+
+        end if;
+ elsif p_flag = 28 then
+  /*   
+    open p_as_outresult for
+
+    select spouse_and_depen_name,
+           position,
+           dependant,
+           whether_form_being_filed_by_him_her
+    from tbl_hrm_asset_and_liability_details
+    where emp_code = v_spliter_a(1)
+    and upper(nvl(spouse_and_depen_name,'NILL')) <> 'NILL'
+    order by sequence;*/
+   
+ open p_as_outresult for
+
+    select spouse_and_depen_name,
+           position,
+           dependant,
+           whether_form_being_filed_by_him_her,
+           relation
+    from tbl_hrm_asset_and_liability_details
+    where seq_id =
+    (
+        select seq_id
+        from
+        (
+            select seq_id
+            from tbl_hrm_asset_and_liability
+            where emp_code = v_spliter_a(1)
+            order by enter_date desc
+        )
+        where rownum = 1
+    )
+    and upper(nvl(spouse_and_depen_name,'NILL')) <> 'NILL'
+    order by sequence;
+
+  elsif p_flag = 29 then
+    open p_as_outresult for
+
+      select seq_id
+        from (
+              select seq_id
+                from tbl_hrm_asset_and_liability
+               where emp_code = v_spliter_a(1)
+               order by enter_date desc
+             )
+       where rownum = 1;
+  elsif p_flag = 31 then
+
+    open p_as_outresult for
+
+    select sequence,
+           dependant,
+           spouse_and_depen_name
+    from tbl_hrm_asset_and_liability_details
+    where seq_id = v_spliter_a(1);
+
+  elsif p_flag = 32 then
+    open p_as_outresult for
+      select dependant, jewels, weight, remark, approx_value, source_of_funds
+        from TBL_HRM_ASSET_JEWELLERY
+       where seq_id in (select sequence from TBL_HRM_ASSET_AND_LIABILITY_DETAILS where seq_id = v_spliter_a(1));
+
+  elsif p_flag = 33 then
+
+    open p_as_outresult for
+
+    select dependant,
+           cash_and_bankbalance,
+           personal_loan,
+           remark,
+           personal_rmrk
+    from TBL_HRM_MOVABLE_FORMS
+    where seq_id in
+    (
+        select sequence
+        from TBL_HRM_ASSET_AND_LIABILITY_DETAILS
+        where seq_id = v_spliter_a(1)
+    );
+  elsif p_flag = 34 then
+    open p_as_outresult for
+      select dependant, investment, amount, remark, issuer, units_qty
+        from TBL_HRM_ASSET_INVESTMENT
+       where seq_id in (select sequence from TBL_HRM_ASSET_AND_LIABILITY_DETAILS where seq_id = v_spliter_a(1));
+
+  elsif p_flag = 35 then
+    open p_as_outresult for
+      select dependant, other_assets, value, remark, source_of_funds
+        from TBL_HRM_OTHER_ASSETS
+       where seq_id in (select sequence from TBL_HRM_ASSET_AND_LIABILITY_DETAILS where seq_id = v_spliter_a(1));
+
+  elsif p_flag = 36 then
+    open p_as_outresult for
+      select f.dependant,
+             decode(f.immovable_form, 0, 'Yes', 1, 'No') immovable_form,
+             f.property_type, f.details, s.state_name, d.district_name, f.division, f.thaluk, f.village,
+             f.distinctive_number, f.total_area, f.type_of_land, f.how_acquired,
+             f.name_of_person_from_whom_acq, f.address, f.connection_to_emp, f.cost_of_acq,
+             f.present_value, f.annual_income, f.remark,
+             f.source_of_funds
+        from TBL_HRM_IMMOVABLE_FORM f, STATE_MASTER s, DISTRICT_MASTER d
+       where f.state_id = s.state_id(+)
+         and f.district_id = d.district_id(+)
+         and f.seq_id in (select sequence from TBL_HRM_ASSET_AND_LIABILITY_DETAILS where seq_id = v_spliter_a(1));
+
+  elsif p_flag = 37 then
+    open p_as_outresult for
+      select dependant, decode(dept_liability, 0, 'Yes', 1, 'No') dept_liability, name, address, nature, amount, remark,
+             loan_source, loan_type, sanctioned_amount, outstanding_amount, emi_amount, relationship, purpose
+        from TBL_HRM_DEBT_LIABILITY
+       where seq_id in (select sequence from TBL_HRM_ASSET_AND_LIABILITY_DETAILS where seq_id = v_spliter_a(1));
+
+  elsif p_flag = 38 then
+    open p_as_outresult for
+      select dependant, vehicles, registration_number, year_of_purchase, amount_paid, remark,
+             payment_mode, lender_name, loan_amount, outstanding_amount, emi_amount, co_applicant
+        from TBL_HRM_ASSET_VEHICLES
+       where seq_id in (select sequence from TBL_HRM_ASSET_AND_LIABILITY_DETAILS where seq_id = v_spliter_a(1));
+
+
+
+  -- 39 : header of the PDF (name, code, designation, joining date + the new declaration columns)
+  elsif p_flag = 39 then
+    open p_as_outresult for
+      select e.emp_name,
+             e.emp_code,
+             dm.designation,
+             dd.dep_name     as department,      
+             bt.BRANCH_NAME   as branch,     
+             e.join_dt,
+             p.pan_no,      
+             h.declaration_date,
+             h.guarantee_details,
+             h.integrity_flag,
+             h.integrity_details,
+             h.consent_flag,
+             h.place
+        from TBL_HRM_ASSET_AND_LIABILITY h,
+             mana0809.employee_master e,
+             mana0809.designation_master dm,
+             mana0809.department_mst dd,
+             mana0809.branch_dtl_new bt,
+             mana0809.TBL_EMP_AADHAR_PAN p
+       where h.seq_id = v_spliter_a(1)
+         and e.emp_code = h.emp_code
+         and bt.BRANCH_ID(+) = e.branch_id
+         and dd.dep_id(+) = e.department_id
+         and p.emp_code(+) = e.emp_code
+         and dm.designation_id(+) = e.designation_id;
+
+  -- 40 : bank / deposit accounts (Q2)
+  elsif p_flag = 40 then
+    open p_as_outresult for
+      select dependant, bank_name, branch, account_type, balance
+        from TBL_HRM_ASSET_BANK_DEPOSIT
+       where seq_id in (select sequence from TBL_HRM_ASSET_AND_LIABILITY_DETAILS where seq_id = v_spliter_a(1));
+
+  -- 41 : insurance / PPF (Q6)
+  elsif p_flag = 41 then
+    open p_as_outresult for
+      select dependant, instrument_type, provider, policy_no, sum_assured
+        from TBL_HRM_ASSET_INSURANCE_PPF
+       where seq_id in (select sequence from TBL_HRM_ASSET_AND_LIABILITY_DETAILS where seq_id = v_spliter_a(1));
+
+  -- 42 : virtual digital assets (Q8)
+  elsif p_flag = 42 then
+    open p_as_outresult for
+      select dependant, asset_type, quantity, approx_value
+        from TBL_HRM_ASSET_VDA
+       where seq_id in (select sequence from TBL_HRM_ASSET_AND_LIABILITY_DETAILS where seq_id = v_spliter_a(1));
+
+  -- 43 : recent acquisitions (Q9)
+  elsif p_flag = 43 then
+    open p_as_outresult for
+      select dependant, description, purchase_date, value, source_of_funds, financing_details
+        from TBL_HRM_ASSET_RECENT_ACQ
+       where seq_id in (select sequence from TBL_HRM_ASSET_AND_LIABILITY_DETAILS where seq_id = v_spliter_a(1));
+
+  -- 44 : annual income (Q10)  - saved once per declaration, so SEQ_ID is the header
+  elsif p_flag = 44 then
+    open p_as_outresult for
+      select fin_year, gross_salary, other_income
+        from TBL_HRM_ASSET_INCOME_ANNUAL
+       where seq_id = v_spliter_a(1)
+       order by fin_year desc;
+
+  -- 45 : income other than salary (Q11)
+  elsif p_flag = 45 then
+    open p_as_outresult for
+      select dependant, nature, source_payer, amount, fin_year
+        from TBL_HRM_ASSET_INCOME_OTHER
+       where seq_id = v_spliter_a(1);
+
+  -- 46 : other accounts (Q15)
+  elsif p_flag = 46 then
+    open p_as_outresult for
+      select dependant, institution, holding_type, approx_value
+        from TBL_HRM_ASSET_OTHER_ACCOUNTS
+       where seq_id = v_spliter_a(1);
+
+  -- 47 : declaration status for an employee   0 = still to do, 1 = submitted, 9 = no declaration started
+  elsif p_flag = 47 then
+    select count(*) into v_ecnt from TBL_HRM_ASSET_AND_LIABILITY where emp_code = v_spliter_a(1);
+
+    if v_ecnt = 0 then
+      open p_as_outresult for select '9' status from dual;
+    else
+      select count(*)
+        into V_CNT
+        from (select declaration_date
+                from TBL_HRM_ASSET_AND_LIABILITY
+               where emp_code = v_spliter_a(1)
+               order by enter_date desc)
+       where rownum = 1
+         and declaration_date is not null;
+
+      open p_as_outresult for select to_char(V_CNT) status from dual;
+    end if;
+
+  -- 48 : save the final declaration
+  --   p_indata = empcode # annual # other # guarantee # integrityFlag # integrityDetails # consent # place # accounts
+  --   annual   = fy*gross*other!fy*gross*other!      other = nature*payer*amount*fy!      accounts = institution*type*heldBy*value!
+  --   '-' means nothing.  Returns 111 = saved, 222 = already submitted, 333 = no declaration started
+  elsif p_flag = 48 then
+    v_spliter_b := splitstr(p_indata, '#');
+
+    select count(*) into v_ecnt from TBL_HRM_ASSET_AND_LIABILITY where emp_code = v_spliter_b(1);
+    if v_ecnt = 0 then
+      open p_as_outresult for select '333' from dual;
+      return;
+    end if;
+
+    select seq_id
+      into seq1
+      from (select seq_id
+              from TBL_HRM_ASSET_AND_LIABILITY
+             where emp_code = v_spliter_b(1)
+             order by enter_date desc)
+     where rownum = 1;
+
+    select count(*)
+      into V_CNT
+      from TBL_HRM_ASSET_AND_LIABILITY
+     where seq_id = seq1
+       and declaration_date is not null;
+
+    if V_CNT > 0 then
+      open p_as_outresult for select '222' from dual;
+      return;
+    end if;
+
+    update TBL_HRM_ASSET_AND_LIABILITY
+       set declaration_date  = sysdate,
+           guarantee_details = nullif(trim(v_spliter_b(4)), '-'),
+           integrity_flag    = to_number(v_spliter_b(5)),
+           integrity_details = nullif(trim(v_spliter_b(6)), '-'),
+           consent_flag      = to_number(v_spliter_b(7)),
+           place             = nullif(trim(v_spliter_b(8)), '-')
+     where seq_id = seq1;
+
+    -- Q10 annual income
+    if v_spliter_b(2) <> '-' then
+      v_spliter_b1 := splitstr(v_spliter_b(2), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_c := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_INCOME_ANNUAL (SEQ_ID, FIN_YEAR, GROSS_SALARY, OTHER_INCOME)
+          values (seq1, v_spliter_c(1), to_number(v_spliter_c(2)), to_number(nullif(trim(v_spliter_c(3)), '-')));
+        end if;
+      end loop;
+    end if;
+
+    -- Q11 other income
+    if v_spliter_b(3) <> '-' then
+      v_spliter_b1 := splitstr(v_spliter_b(3), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_c := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_INCOME_OTHER (SEQ_ID, NATURE, SOURCE_PAYER, AMOUNT, FIN_YEAR)
+          values (seq1, v_spliter_c(1), v_spliter_c(2), to_number(v_spliter_c(3)), v_spliter_c(4));
+        end if;
+      end loop;
+    end if;
+
+    -- Q15 other accounts
+    if v_spliter_b(9) <> '-' then
+      v_spliter_b1 := splitstr(v_spliter_b(9), '!');
+      for k in 1 .. v_spliter_b1.count loop
+        if (v_spliter_b1(k) is not null) then
+          v_spliter_c := splitstr(v_spliter_b1(k), '*');
+          insert into TBL_HRM_ASSET_OTHER_ACCOUNTS (SEQ_ID, DEPENDANT, INSTITUTION, HOLDING_TYPE, APPROX_VALUE)
+          values (seq1, v_spliter_c(3), v_spliter_c(1), v_spliter_c(2), to_number(v_spliter_c(4)));
+        end if;
+      end loop;
+    end if;
+
+    commit;
+    open p_as_outresult for select '111' from dual;
+    return;
+
+
+  -- 49 : register the PDF in DMS and return the SQL that stores the file   (replaces the old  IF p_flag = 286)
+  --   p_indata = seqId ~ empCode ~ fileName     (seqId = header SEQ_ID, flag 29)
+  --   the controller then posts this SQL + the PDF to HRMSDocumentUpload.  No quotes in the answer on purpose:
+  --   PostInternalPageData removes single quotes from responses.
+  --   MANA0809 needs INSERT / UPDATE rights on DMS.TBL_HRM_ASSET_LIABILITY_PDF.
+  elsif p_flag = 49 then
+    declare
+      v_fy_year varchar2(20);
+      v_seq     number := to_number(v_spliter_a(1));   -- numeric only, so nothing else can reach the SQL below
+    begin
+      select to_char(fiscal_year, 'YYYY') || '-' || substr(to_char(add_months(fiscal_year, 12), 'YYYY'), 3)
+        into v_fy_year
+        from mana0809.fiscal_year_vw;
+
+      select count(*)
+        into V_CNT
+        from DMS.TBL_HRM_ASSET_LIABILITY_PDF
+       where seq_id = v_seq;
+
+      if V_CNT = 0 then
+        insert into DMS.TBL_HRM_ASSET_LIABILITY_PDF
+          (SEQ_ID, EMP_CODE, DOC_YEAR, FILE_NAME, GENERATED_DATE, GENERATED_BY, STATUS)
+        values
+          (v_seq, v_spliter_a(2), v_fy_year, v_spliter_a(3), sysdate, v_spliter_a(2), 1);
+      else
+        update DMS.TBL_HRM_ASSET_LIABILITY_PDF
+           set file_name = v_spliter_a(3),
+               generated_date = sysdate
+         where seq_id = v_seq;
+      end if;
+
+      commit;
+
+      open p_as_outresult for
+        select 'update DMS.TBL_HRM_ASSET_LIABILITY_PDF set PDF_DOC = :DOCUMENT where SEQ_ID = ' || v_seq as RES
+          from dual;
+    end;
+
+  -- 50 : save an Annexure-II (Conflict of Interest) disclosure - the yearly one, or a new one raised during the year
+  --   p_indata = empcode # q1flag # q1rows # q2flag # q2rows # q3flag # q3text # place
+  --   q1rows = entity*relationship*relative*nature*value!      q2rows = activity*entity*relative*competes!
+  --   '-' means nothing.  Returns 111 = saved, 333 = no declaration started for this employee
+  elsif p_flag = 50 then
+    v_spliter_b := splitstr(p_indata, '#');
+
+    select count(*) into v_ecnt from TBL_HRM_ASSET_AND_LIABILITY where emp_code = v_spliter_b(1);
+    if v_ecnt = 0 then
+      open p_as_outresult for select '333' from dual;
+      return;
+    end if;
+
+    select seq_id
+      into seq1
+      from (select seq_id
+              from TBL_HRM_ASSET_AND_LIABILITY
+             where emp_code = v_spliter_b(1)
+             order by enter_date desc)
+     where rownum = 1;
+
+    declare
+      v_coi number;
+    begin
+      v_coi := SEQ_HRM_COI.NEXTVAL;
+
+      insert into TBL_HRM_ASSET_COI
+        (COI_ID, SEQ_ID, EMP_CODE, DISCLOSURE_DATE, Q1_FLAG, Q2_FLAG, Q3_FLAG, Q3_DESCRIPTION, PLACE)
+      values
+        (v_coi, seq1, v_spliter_b(1), sysdate,
+         to_number(v_spliter_b(2)), to_number(v_spliter_b(4)), to_number(v_spliter_b(6)),
+         nullif(trim(v_spliter_b(7)), '-'), nullif(trim(v_spliter_b(8)), '-'));
+
+      -- Q1 interests
+      if v_spliter_b(3) <> '-' then
+        v_spliter_b1 := splitstr(v_spliter_b(3), '!');
+        for k in 1 .. v_spliter_b1.count loop
+          if (v_spliter_b1(k) is not null) then
+            v_spliter_c := splitstr(v_spliter_b1(k), '*');
+            insert into TBL_HRM_ASSET_COI_INTEREST
+              (COI_ID, ENTITY_NAME, ENTITY_RELATION, RELATIVE_NAME_REL, NATURE_OF_INTEREST, APPROX_VALUE)
+            values
+              (v_coi, v_spliter_c(1), v_spliter_c(2), nullif(trim(v_spliter_c(3)), '-'), v_spliter_c(4), v_spliter_c(5));
+          end if;
+        end loop;
+      end if;
+
+      -- Q2 outside activities
+      if v_spliter_b(5) <> '-' then
+        v_spliter_b1 := splitstr(v_spliter_b(5), '!');
+        for k in 1 .. v_spliter_b1.count loop
+          if (v_spliter_b1(k) is not null) then
+            v_spliter_c := splitstr(v_spliter_b1(k), '*');
+            insert into TBL_HRM_ASSET_COI_ACTIVITY
+              (COI_ID, NATURE_OF_ACTIVITY, ENTITY_NAME, RELATIVE_NAME_REL, COMPETES)
+            values
+              (v_coi, v_spliter_c(1), v_spliter_c(2), nullif(trim(v_spliter_c(3)), '-'), v_spliter_c(4));
+          end if;
+        end loop;
+      end if;
+
+      commit;
+    end;
+
+    open p_as_outresult for select '111' from dual;
+    return;
+
+  -- 51 - 54 : Annexure-II for the PDF (latest disclosure of the declaration; p_indata = header SEQ_ID)
+  elsif p_flag = 51 then
+    open p_as_outresult for
+      select coi_id, disclosure_date, q1_flag, q2_flag, q3_flag, q3_description, place, reviewed_by, outcome
+        from TBL_HRM_ASSET_COI
+       where coi_id = (select max(coi_id) from TBL_HRM_ASSET_COI where seq_id = v_spliter_a(1));
+
+  elsif p_flag = 52 then
+    open p_as_outresult for
+      select entity_name, entity_relation, relative_name_rel, nature_of_interest, approx_value
+        from TBL_HRM_ASSET_COI_INTEREST
+       where coi_id = (select max(coi_id) from TBL_HRM_ASSET_COI where seq_id = v_spliter_a(1));
+
+  elsif p_flag = 53 then
+    open p_as_outresult for
+      select nature_of_activity, entity_name, relative_name_rel, competes
+        from TBL_HRM_ASSET_COI_ACTIVITY
+       where coi_id = (select max(coi_id) from TBL_HRM_ASSET_COI where seq_id = v_spliter_a(1));
+
+  elsif p_flag = 54 then
+    open p_as_outresult for
+      select conflict_identified, mitigation_measure, approved_by, approved_date
+        from TBL_HRM_ASSET_COI_MITIGATION
+       where coi_id = (select max(coi_id) from TBL_HRM_ASSET_COI where seq_id = v_spliter_a(1));
+
+  ----------------------------------------------------------------------
+ 
+  end if;
+exception
+  when others then
+    -- p_errorMsg := SUBSTR(SQLERRM, 1, 150) || '- Error Code :-' || SQLCODE;
+    -- rollback;
+
+    rollback;
+
+    v_ErrID    := seq_hrms_errorid.nextval;
+    p_errormsg := 'Oops..!Something Went Wrong...!' || v_ErrID;
+    v_ErrDesc  := SUBSTR(SQLERRM, 1, 150); -- || v_spliter_a(2);
+    v_ErrDtl   := v_ErrDesc || dbms_utility.format_error_backtrace ||
+                  dbms_utility.format_error_stack ||
+                  dbms_utility.format_call_stack;
+    insert into tbl_hrms_error_dtl
+      (error_id, proc_name, error_description, error_details, tra_dt)
+    values
+      (v_ErrID,
+       'Proc_Hrm_Asset_And_Liability_mvc_new',
+       v_ErrDesc,
+       v_ErrDtl,
+       sysdate);
+    commit;
+end Proc_Hrm_Asset_And_Liability_mvc_new;
